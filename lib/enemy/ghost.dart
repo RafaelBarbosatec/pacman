@@ -165,9 +165,9 @@ class Ghost extends SimpleEnemy
   void onContact(GameComponent component) {
     if (enabledBeheavor) {
       if (component is PacMan) {
-        if (_gameState.pacManWithPower) {
+        if (state == GhostState.vulnerable) {
           bite();
-        } else {
+        } else if (state == GhostState.normal) {
           if (!component.isDead) {
             enabledBeheavor = false;
             component.idle();
@@ -181,8 +181,8 @@ class Ghost extends SimpleEnemy
   void _checkToUpdateAnimation() {
     if (state == GhostState.die && !isMovingAlongThePath) {
       state = GhostState.normal;
-      replaceAnimation(GhostSpriteSheet.getByType(type));
       speed = normalSpeed;
+      replaceAnimation(GhostSpriteSheet.getByType(type));
       _startMovement(withDelay: false);
     }
   }
@@ -198,6 +198,7 @@ class Ghost extends SimpleEnemy
   void _pacManChangePower(bool value) {
     if (value) {
       state = GhostState.vulnerable;
+      speed = vulnerableSpeed;
       final animation = GhostSpriteSheet.runPower;
       replaceAnimation(
         SimpleDirectionAnimation(
@@ -205,7 +206,6 @@ class Ghost extends SimpleEnemy
           runRight: animation,
         ),
       );
-      speed = vulnerableSpeed;
     } else if (state != GhostState.die) {
       state = GhostState.normal;
       speed = normalSpeed;
