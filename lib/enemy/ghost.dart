@@ -116,11 +116,11 @@ class Ghost extends SimpleEnemy
   void onMount() {
     _gameState = BonfireInjector.instance.get();
     _gameState.listenChangePower(_pacManChangePower);
-    _startMovement();
+    _startInitialMovement();
     super.onMount();
   }
 
-  void _startMovement({bool withDelay = true}) async {
+  void _startInitialMovement({bool withDelay = true}) async {
     switch (type) {
       case GhostType.red:
         if (withDelay) {
@@ -183,7 +183,7 @@ class Ghost extends SimpleEnemy
       state = GhostState.normal;
       speed = normalSpeed;
       replaceAnimation(GhostSpriteSheet.getByType(type));
-      _startMovement(withDelay: false);
+      _startInitialMovement(withDelay: false);
     }
   }
 
