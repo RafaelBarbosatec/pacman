@@ -1,9 +1,11 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/player/pacman_player.dart';
-import 'package:pacman/util_spritesheet.dart';
+import 'package:pacman/player/pacman.dart';
+import 'package:pacman/util/game_state.dart';
+import 'package:pacman/util/util_spritesheet.dart';
 
 class DotPower extends GameDecoration with Sensor {
   bool givePower = false;
+  late GameState _gameState;
   DotPower({
     required super.position,
   }) : super.withAnimation(
@@ -22,16 +24,21 @@ class DotPower extends GameDecoration with Sensor {
 
   @override
   void onContact(GameComponent component) {
-    if (component is PacManPlayer) {
+    if (component is PacMan) {
       if (!givePower) {
         givePower = true;
         removeFromParent();
-        component.startPower();
+        _gameState.startPacManPower();
       }
     }
   }
 
   @override
-  void onContactExit(GameComponent component) {
+  void onContactExit(GameComponent component) {}
+
+  @override
+  void onMount() {
+    _gameState = BonfireInjector.instance.get();
+    super.onMount();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 
-class PlayerSpriteSheet {
+class PacManSpriteSheet {
   static Future<SpriteAnimation> get idle => SpriteAnimation.load(
         'pacman-sprites.png',
         SpriteAnimationData.sequenced(

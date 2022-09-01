@@ -20,6 +20,15 @@ class GhostSpriteSheet {
             texturePosition: Vector2(48 * 2, 48 * 2)),
       );
 
+  static Future<SpriteAnimation> get runDownRed => SpriteAnimation.load(
+        'pacman-sprites.png',
+        SpriteAnimationData.sequenced(
+            amount: 2,
+            stepTime: 0.1,
+            textureSize: Vector2.all(48),
+            texturePosition: Vector2(0, 48 * 2)),
+      );
+
   static Future<SpriteAnimation> get runRightPink => SpriteAnimation.load(
         'pacman-sprites.png',
         SpriteAnimationData.sequenced(
@@ -85,6 +94,16 @@ class GhostSpriteSheet {
         ),
       );
 
+      static Future<SpriteAnimation> get runEyes => SpriteAnimation.load(
+        'pacman-sprites.png',
+        SpriteAnimationData.sequenced(
+          amount: 4,
+          stepTime: 0.1,
+          textureSize: Vector2.all(48),
+          texturePosition: Vector2(0, 48 * 7),
+        ),
+      );
+
   static SimpleDirectionAnimation getByType(GhostType type) {
     switch (type) {
       case GhostType.red:
@@ -92,6 +111,7 @@ class GhostSpriteSheet {
           idleRight: runRightRed,
           runRight: runRightRed,
           runUp: runUpRed,
+          runDown: runDownRed,
         );
       case GhostType.blue:
         return SimpleDirectionAnimation(

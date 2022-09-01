@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/player/pacman_player.dart';
-import 'package:pacman/util_spritesheet.dart';
+import 'package:pacman/player/pacman.dart';
+import 'package:pacman/util/util_spritesheet.dart';
 
 class Dot extends GameDecoration with Sensor {
   Dot({
@@ -21,13 +21,11 @@ class Dot extends GameDecoration with Sensor {
 
   @override
   void onContact(GameComponent component) {
-    if (component is PacManPlayer) {
+    if (component is PacMan) {
       removeFromParent();
     }
   }
 
   @override
-  void onContactExit(GameComponent component) {
-    // TODO: implement onContactExit
-  }
+  int get priority => LayerPriority.MAP + 1;
 }

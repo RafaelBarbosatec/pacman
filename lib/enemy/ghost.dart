@@ -1,14 +1,30 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:flutter/material.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
 import 'package:pacman/main.dart';
-import 'package:pacman/player/pacman_player.dart';
+import 'package:pacman/player/pacman.dart';
+import 'package:pacman/util/game_state.dart';
 
 enum GhostType { red, blue, pink, orange }
 
+enum GhostState { normal, vulnerable, die }
+
 class Ghost extends SimpleEnemy
-    with ObjectCollision, AutomaticRandomMovement, Sensor {
+    with
+        ObjectCollision,
+        AutomaticRandomMovement,
+        Sensor,
+        MoveToPositionAlongThePath {
+  static const normalSpeed = 140.0;
+  static const vulnerableSpeed = 90.0;
+  static const dieSpeed = 240.0;
+  GhostState state = GhostState.normal;
+  final Vector2 _startPositionAfterDie = Vector2(
+    Game.tileSize * 9,
+    Game.tileSize * 9,
+  );
+  late GameState _gameState;
   final GhostType type;
-  bool runPowerMode = false;
 
   bool enabledBeheavor = false;
   Ghost({
@@ -17,7 +33,7 @@ class Ghost extends SimpleEnemy
   }) : super(
           size: Vector2.all(Game.tileSize),
           animation: GhostSpriteSheet.getByType(type),
-          speed: 140,
+          speed: normalSpeed,
         ) {
     setupCollision(
       CollisionConfig(
@@ -30,52 +46,51 @@ class Ghost extends SimpleEnemy
       ),
     );
 
-    setupSensorArea(areaSensor: [
-      CollisionArea.rectangle(
-        size: size - Vector2.all(10),
-        align: Vector2.all(5),
-      ),
-    ]);
+    setupSensorArea(
+      areaSensor: [
+        CollisionArea.rectangle(
+          size: size - Vector2.all(18),
+          align: Vector2.all(9),
+        ),
+      ],
+    );
+
+    setupMoveToPositionAlongThePath(
+      pathLineColor: Colors.transparent,
+    );
   }
 
   @override
   void update(double dt) {
-    if ((gameRef.player as PacManPlayer?)?.withPower == true) {
-      if (!runPowerMode) {
-        runPowerMode = true;
-        replaceAnimation(
-          SimpleDirectionAnimation(
-            idleRight: GhostSpriteSheet.runPower,
-            runRight: GhostSpriteSheet.runPower,
-            runUp: GhostSpriteSheet.runPower,
-          ),
-        );
-        speed = 80;
-      }
-    } else if (runPowerMode) {
-      speed = 140;
-      runPowerMode = false;
-      replaceAnimation(GhostSpriteSheet.getByType(type));
-    }
-    if (enabledBeheavor) {
+    _checkToUpdateAnimation();
+
+    if (enabledBeheavor && !isMovingAlongThePath) {
       seePlayer(
         observed: (player) {
-          if ((player as PacManPlayer).withPower) {
-            seeAndMoveToAttackRange(
+          if (state == GhostState.vulnerable) {
+            positionsItselfAndKeepDistance(
+              player,
               positioned: (_) {},
-              minDistanceFromPlayer: 48 * 3,
+              minDistanceFromPlayer: Game.tileSize * 3,
             );
           } else {
-            seeAndMoveToPlayer(
-              closePlayer: (player) {},
-              margin: -5,
-              radiusVision: 48 * 2,
+            followComponent(
+              player,
+              dt,
+              closeComponent: (_) {},
+              margin: -10,
             );
           }
         },
-        radiusVision: 48 * 2,
+        radiusVision: Game.tileSize * 2,
         notObserved: () {
-          _runRandom(dt);
+          runRandomMovement(
+            dt,
+            speed: speed,
+            maxDistance: (Game.tileSize * 4).toInt(),
+            minDistance: (Game.tileSize * 4).toInt(),
+            timeKeepStopped: 0,
+          );
         },
       );
     }
@@ -83,63 +98,118 @@ class Ghost extends SimpleEnemy
   }
 
   void bite() {
-    // enabledBeheavor = false;
-    // enableCollision(false);
-    removeFromParent();
-  }
-
-  _runRandom(double dt) {
-    runRandomMovement(
-      dt,
-      speed: speed,
-      maxDistance: 48 * 4,
-      minDistance: 48 * 4,
-      timeKeepStopped: 0,
+    state = GhostState.die;
+    enabledBeheavor = false;
+    final animation = GhostSpriteSheet.runEyes;
+    replaceAnimation(
+      SimpleDirectionAnimation(
+        idleRight: animation,
+        runRight: animation,
+      ),
     );
+
+    speed = dieSpeed;
+    moveToPositionAlongThePath(_startPositionAfterDie);
   }
 
   @override
   void onMount() {
+    _gameState = BonfireInjector.instance.get();
+    _gameState.listenChangePower(_pacManChangePower);
     _startMovement();
     super.onMount();
   }
 
-  void _startMovement() {
-    Duration duration = Duration.zero;
+  void _startMovement({bool withDelay = true}) async {
     switch (type) {
       case GhostType.red:
-        duration = const Duration(seconds: 1);
+        if (withDelay) {
+          await Future.delayed(const Duration(seconds: 1));
+        }
+        moveToPositionAlongThePath(
+          Vector2(Game.tileSize * 4, Game.tileSize * 3),
+        );
+        enabledBeheavor = true;
         break;
       case GhostType.blue:
-        duration = const Duration(seconds: 6);
+        if (withDelay) {
+          await Future.delayed(const Duration(seconds: 6));
+        }
+        moveToPositionAlongThePath(
+          Vector2(Game.tileSize * 14, Game.tileSize * 3),
+        );
+        enabledBeheavor = true;
         break;
       case GhostType.pink:
-        duration = const Duration(seconds: 11);
+        if (withDelay) {
+          await Future.delayed(const Duration(seconds: 11));
+        }
+        moveToPositionAlongThePath(
+          Vector2(Game.tileSize * 4, Game.tileSize * 13),
+        );
+        enabledBeheavor = true;
         break;
       case GhostType.orange:
-        duration = const Duration(seconds: 16);
+        if (withDelay) {
+          await Future.delayed(const Duration(seconds: 16));
+        }
+        moveToPositionAlongThePath(
+          Vector2(Game.tileSize * 14, Game.tileSize * 13),
+        );
+        enabledBeheavor = true;
         break;
     }
-    Future.delayed(duration, () {
-      enabledBeheavor = true;
-    });
   }
 
   @override
   void onContact(GameComponent component) {
-    if (component is PacManPlayer) {
-      if (component.withPower) {
-        bite();
-      } else {
-        if (!component.isDead) {
-          enabledBeheavor = false;
-          component.idle();
-          component.die();
+    if (enabledBeheavor) {
+      if (component is PacMan) {
+        if (_gameState.pacManWithPower) {
+          bite();
+        } else {
+          if (!component.isDead) {
+            enabledBeheavor = false;
+            component.idle();
+            component.die();
+          }
         }
       }
     }
   }
 
+  void _checkToUpdateAnimation() {
+    if (state == GhostState.die && !isMovingAlongThePath) {
+      state = GhostState.normal;
+      replaceAnimation(GhostSpriteSheet.getByType(type));
+      speed = normalSpeed;
+      _startMovement(withDelay: false);
+    }
+  }
+
   @override
-  void onContactExit(GameComponent component) {}
+  bool onCollision(GameComponent component, bool active) {
+    if (component is Ghost) {
+      return false;
+    }
+    return super.onCollision(component, active);
+  }
+
+  void _pacManChangePower(bool value) {
+    if (value) {
+      state = GhostState.vulnerable;
+      final animation = GhostSpriteSheet.runPower;
+      replaceAnimation(
+        SimpleDirectionAnimation(
+          idleRight: animation,
+          runRight: animation,
+        ),
+      );
+      speed = vulnerableSpeed;
+    } else if (state != GhostState.die) {
+      state = GhostState.normal;
+      speed = normalSpeed;
+      replaceAnimation(GhostSpriteSheet.getByType(type));
+    }
+  }
 }

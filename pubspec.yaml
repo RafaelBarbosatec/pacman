@@ -32,7 +32,7 @@ dependencies:
 
 
   
-  bonfire: ^2.9.2
+  bonfire: ^2.9.3
 
 dev_dependencies:
   flutter_test:

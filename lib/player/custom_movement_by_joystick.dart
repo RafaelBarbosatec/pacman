@@ -113,7 +113,7 @@ mixin CustomMovementByJoystick on SimplePlayer {
       return element.rectCollision.overlaps(
             (this as ObjectCollision)
                 .rectCollision
-                .deflate(10)
+                .deflate(14)
                 .translate(direction.x, direction.y),
           ) &&
           element != this;

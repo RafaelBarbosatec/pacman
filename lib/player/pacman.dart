@@ -2,24 +2,22 @@ import 'package:bonfire/bonfire.dart';
 import 'package:pacman/decoration/dot.dart';
 import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/player/custom_movement_by_joystick.dart';
-import 'package:pacman/player/player_spritesheet.dart';
+import 'package:pacman/player/pacman_spritesheet.dart';
 
 import '../main.dart';
 
-class PacManPlayer extends SimplePlayer
+class PacMan extends SimplePlayer
     with ObjectCollision, CustomMovementByJoystick {
-  bool withPower = false;
   bool youAreWinner = false;
-  Future? _futurePowerTime;
 
-  PacManPlayer({required super.position})
+  PacMan({required super.position})
       : super(
           size: Vector2.all(Game.tileSize),
           animation: SimpleDirectionAnimation(
-            idleRight: PlayerSpriteSheet.idle,
-            runRight: PlayerSpriteSheet.runRight,
-            runUp: PlayerSpriteSheet.runUp,
-            runDown: PlayerSpriteSheet.runDown,
+            idleRight: PacManSpriteSheet.idle,
+            runRight: PacManSpriteSheet.runRight,
+            runUp: PacManSpriteSheet.runUp,
+            enabledFlipY: true
           ),
         ) {
     setupCollision(
@@ -59,7 +57,7 @@ class PacManPlayer extends SimplePlayer
   @override
   void die() {
     animation?.playOnce(
-      PlayerSpriteSheet.die,
+      PacManSpriteSheet.die,
       onFinish: removeFromParent,
       runToTheEnd: true,
     );
@@ -72,15 +70,5 @@ class PacManPlayer extends SimplePlayer
       youAreWinner = true;
       print('PARABENS VC GANHOU !!');
     }
-  }
-
-  void startPower() {
-    withPower = true;
-    _futurePowerTime?.ignore();
-    _futurePowerTime = Future.delayed(const Duration(seconds: 5), () {
-      withPower = false;
-    }).catchError(
-      (e) {},
-    );
   }
 }

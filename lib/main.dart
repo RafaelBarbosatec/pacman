@@ -6,9 +6,11 @@ import 'package:pacman/decoration/dot.dart';
 import 'package:pacman/decoration/dot_power.dart';
 import 'package:pacman/decoration/sensor_gate.dart';
 import 'package:pacman/enemy/ghost.dart';
-import 'package:pacman/player/pacman_player.dart';
+import 'package:pacman/player/pacman.dart';
+import 'package:pacman/util/game_state.dart';
 
 void main() {
+  BonfireInjector.instance.put((i) => GameState());
   runApp(const MyApp());
 }
 
@@ -86,7 +88,7 @@ class Game extends StatelessWidget {
             cameraConfig: CameraConfig(
               zoom: zoom,
             ),
-            player: PacManPlayer(
+            player: PacMan(
               position: Vector2(
                 9 * Game.tileSize,
                 15 * Game.tileSize,
