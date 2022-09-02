@@ -9,6 +9,7 @@ import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
+import 'package:pacman/widgets/interface_game.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,6 +89,10 @@ class Game extends StatelessWidget {
             joystick: Joystick(
               keyboardConfig: KeyboardConfig(),
             ),
+            overlayBuilderMap: {
+              'score': ((context, game) => const InterfaceGame()),
+            },
+            initialActiveOverlays: const ['score'],
             cameraConfig: CameraConfig(
               zoom: zoom,
             ),

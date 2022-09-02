@@ -15,6 +15,7 @@ class GameState extends ChangeNotifier {
 
   void incrementScore({int value = 10}) {
     _score += value;
+    notifyListeners();
   }
 
   void decrementLife() {

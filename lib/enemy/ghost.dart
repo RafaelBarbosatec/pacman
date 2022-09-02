@@ -64,7 +64,7 @@ class Ghost extends SimpleEnemy
 
   @override
   void update(double dt) {
-    _checkToUpdateAnimation();
+    _checkToRemoveEyeAnimation();
 
     if (enabledBeheavor && !isMovingAlongThePath) {
       seePlayer(
@@ -203,7 +203,7 @@ class Ghost extends SimpleEnemy
     }
   }
 
-  void _checkToUpdateAnimation() {
+  void _checkToRemoveEyeAnimation() {
     if (state == GhostState.die && !isMovingAlongThePath) {
       state = GhostState.normal;
       speed = normalSpeed;
