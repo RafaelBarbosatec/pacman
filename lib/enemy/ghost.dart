@@ -120,10 +120,8 @@ class Ghost extends SimpleEnemy
       _startPositionAfterDie,
       ignoreCollisions: ignoreableCollisions,
     );
-    Future.delayed(const Duration(seconds: 1), () {
-      Sounds.playRetreatingBackgroundSound();
-    });
     Sounds.eatGhost();
+    Sounds.playRetreatingBackgroundSound();
   }
 
   List<dynamic> get ignoreableCollisions {

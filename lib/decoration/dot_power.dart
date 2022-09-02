@@ -34,9 +34,6 @@ class DotPower extends GameDecoration with Sensor {
   }
 
   @override
-  void onContactExit(GameComponent component) {}
-
-  @override
   void onMount() {
     _gameState = BonfireInjector.instance.get();
     super.onMount();
