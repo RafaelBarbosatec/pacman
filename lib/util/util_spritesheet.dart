@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:pacman/main.dart';
 
 class UtilSpriteSheet {
   static Future<Sprite> get dot => Sprite.load('dot.png');
@@ -10,5 +11,12 @@ class UtilSpriteSheet {
           stepTime: 0.4,
           textureSize: Vector2.all(18),
         ),
+      );
+
+
+  static Future<Sprite> get score100 => Sprite.load(
+        'pacman-sprites.png',
+        srcSize: Vector2.all(48),
+        srcPosition: Vector2(4*Game.tileSize, 7*Game.tileSize)
       );
 }

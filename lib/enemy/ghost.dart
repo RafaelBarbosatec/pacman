@@ -1,9 +1,11 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
+import 'package:pacman/decoration/eat_score.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
 import 'package:pacman/main.dart';
 import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
+import 'package:pacman/util/sounds.dart';
 
 enum GhostType { red, blue, pink, orange }
 
@@ -49,8 +51,8 @@ class Ghost extends SimpleEnemy
     setupSensorArea(
       areaSensor: [
         CollisionArea.rectangle(
-          size: size - Vector2.all(18),
-          align: Vector2.all(9),
+          size: size - Vector2.all(24),
+          align: Vector2.all(12),
         ),
       ],
     );
@@ -74,27 +76,32 @@ class Ghost extends SimpleEnemy
               minDistanceFromPlayer: Game.tileSize * 3,
             );
           } else {
-            followComponent(
+            bool move = followComponent(
               player,
               dt,
               closeComponent: (_) {},
               margin: -10,
             );
+            if (!move) {
+              _runRandom(dt);
+            }
           }
         },
         radiusVision: Game.tileSize * 2,
-        notObserved: () {
-          runRandomMovement(
-            dt,
-            speed: speed,
-            maxDistance: (Game.tileSize * 4).toInt(),
-            minDistance: (Game.tileSize * 4).toInt(),
-            timeKeepStopped: 0,
-          );
-        },
+        notObserved: () => _runRandom(dt),
       );
     }
     super.update(dt);
+  }
+
+  void _runRandom(double dt) {
+    runRandomMovement(
+      dt,
+      speed: speed,
+      maxDistance: (Game.tileSize * 4).toInt(),
+      minDistance: (Game.tileSize * 4).toInt(),
+      timeKeepStopped: 0,
+    );
   }
 
   void bite() {
@@ -109,7 +116,21 @@ class Ghost extends SimpleEnemy
     );
 
     speed = dieSpeed;
-    moveToPositionAlongThePath(_startPositionAfterDie);
+    moveToPositionAlongThePath(
+      _startPositionAfterDie,
+      ignoreCollisions: ignoreableCollisions,
+    );
+    Future.delayed(const Duration(seconds: 1), () {
+      Sounds.playRetreatingBackgroundSound();
+    });
+    Sounds.eatGhost();
+  }
+
+  List<dynamic> get ignoreableCollisions {
+    return [
+      gameRef.player,
+      ...gameRef.enemies(),
+    ];
   }
 
   @override
@@ -128,6 +149,7 @@ class Ghost extends SimpleEnemy
         }
         moveToPositionAlongThePath(
           Vector2(Game.tileSize * 4, Game.tileSize * 3),
+          ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
         break;
@@ -137,6 +159,7 @@ class Ghost extends SimpleEnemy
         }
         moveToPositionAlongThePath(
           Vector2(Game.tileSize * 14, Game.tileSize * 3),
+          ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
         break;
@@ -146,6 +169,7 @@ class Ghost extends SimpleEnemy
         }
         moveToPositionAlongThePath(
           Vector2(Game.tileSize * 4, Game.tileSize * 13),
+          ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
         break;
@@ -155,6 +179,7 @@ class Ghost extends SimpleEnemy
         }
         moveToPositionAlongThePath(
           Vector2(Game.tileSize * 14, Game.tileSize * 13),
+          ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
         break;
@@ -166,10 +191,10 @@ class Ghost extends SimpleEnemy
     if (enabledBeheavor) {
       if (component is PacMan) {
         if (state == GhostState.vulnerable) {
+          _incrementScore();
           bite();
         } else if (state == GhostState.normal) {
           if (!component.isDead) {
-            enabledBeheavor = false;
             component.idle();
             component.die();
           }
@@ -184,12 +209,17 @@ class Ghost extends SimpleEnemy
       speed = normalSpeed;
       replaceAnimation(GhostSpriteSheet.getByType(type));
       _startInitialMovement(withDelay: false);
+      if (_gameState.pacManWithPower) {
+        Sounds.playPowerBackgroundSound();
+      } else {
+        Sounds.stopBackgroundSound();
+      }
     }
   }
 
   @override
   bool onCollision(GameComponent component, bool active) {
-    if (component is Ghost) {
+    if (component is Ghost || component is PacMan) {
       return false;
     }
     return super.onCollision(component, active);
@@ -211,5 +241,10 @@ class Ghost extends SimpleEnemy
       speed = normalSpeed;
       replaceAnimation(GhostSpriteSheet.getByType(type));
     }
+  }
+
+  void _incrementScore() {
+    gameRef.add(EatScore(position: position));
+    _gameState.incrementScore(value: 200);
   }
 }

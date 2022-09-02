@@ -22,6 +22,7 @@ class Dot extends GameDecoration with Sensor {
   @override
   void onContact(GameComponent component) {
     if (component is PacMan) {
+      component.eatDot();
       removeFromParent();
     }
   }

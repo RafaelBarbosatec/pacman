@@ -40,7 +40,7 @@ class PacManSpriteSheet {
         'pacman-sprites.png',
         SpriteAnimationData.sequenced(
           amount: 6,
-          stepTime: 0.1,
+          stepTime: 0.3,
           textureSize: Vector2.all(48),
           texturePosition: Vector2(0, 48),
         ),

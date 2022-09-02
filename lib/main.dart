@@ -8,9 +8,12 @@ import 'package:pacman/decoration/sensor_gate.dart';
 import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
+import 'package:pacman/util/sounds.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   BonfireInjector.instance.put((i) => GameState());
+  Sounds.initialize();
   runApp(const MyApp());
 }
 
@@ -89,10 +92,7 @@ class Game extends StatelessWidget {
               zoom: zoom,
             ),
             player: PacMan(
-              position: Vector2(
-                9 * Game.tileSize,
-                15 * Game.tileSize,
-              ),
+              position: PacMan.initialPosition,
             ),
           ),
         ),

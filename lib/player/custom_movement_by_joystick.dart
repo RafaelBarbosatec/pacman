@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/main.dart';
 
 mixin CustomMovementByJoystick on SimplePlayer {
@@ -116,7 +117,8 @@ mixin CustomMovementByJoystick on SimplePlayer {
                 .deflate(14)
                 .translate(direction.x, direction.y),
           ) &&
-          element != this;
+          element != this &&
+          element is! Ghost;
     });
 
     return v.isEmpty;
