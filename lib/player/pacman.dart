@@ -21,16 +21,17 @@ class PacMan extends SimplePlayer
   bool youAreWinner = false;
   bool innerDeath = false;
   late GameState _gameState;
-  async.Timer? _debounce;
+  async.Timer? _debounceSound;
 
   PacMan({required super.position})
       : super(
           size: Vector2.all(Game.tileSize),
           animation: SimpleDirectionAnimation(
-              idleRight: PacManSpriteSheet.idle,
-              runRight: PacManSpriteSheet.runRight,
-              runUp: PacManSpriteSheet.runUp,
-              enabledFlipY: true),
+            idleRight: PacManSpriteSheet.idle,
+            runRight: PacManSpriteSheet.runRight,
+            runUp: PacManSpriteSheet.runUp,
+            enabledFlipY: true,
+          ),
         ) {
     setupCollision(
       CollisionConfig(
@@ -105,14 +106,13 @@ class PacMan extends SimplePlayer
       Sounds.munch(first: firstSoundMunch);
       firstSoundMunch = !firstSoundMunch;
     });
-
     _gameState.incrementScore();
   }
 
   void debounce(VoidCallback call) {
-    if (_debounce?.isActive ?? false) {
+    if (_debounceSound?.isActive ?? false) {
       return;
     }
-    _debounce = async.Timer(Duration.zero, call);
+    _debounceSound = async.Timer(Duration.zero, call);
   }
 }
