@@ -64,27 +64,26 @@ class Ghost extends SimpleEnemy
 
   @override
   void update(double dt) {
-    _checkToRemoveEyeAnimation();
-
     if (enabledBeheavor && !isMovingAlongThePath) {
       seePlayer(
         observed: (player) {
+          bool move = false;
           if (state == GhostState.vulnerable) {
-            positionsItselfAndKeepDistance(
+            move = positionsItselfAndKeepDistance(
               player,
               positioned: (_) {},
               minDistanceFromPlayer: Game.tileSize * 3,
             );
           } else {
-            bool move = followComponent(
+            move = followComponent(
               player,
               dt,
               closeComponent: (_) {},
               margin: -10,
             );
-            if (!move) {
-              _runRandom(dt);
-            }
+          }
+          if (!move) {
+            _runRandom(dt);
           }
         },
         radiusVision: Game.tileSize * 2,
@@ -119,6 +118,7 @@ class Ghost extends SimpleEnemy
     moveToPositionAlongThePath(
       _startPositionAfterDie,
       ignoreCollisions: ignoreableCollisions,
+      onFinish: _removeEyeAnimation,
     );
     Sounds.eatGhost();
     Sounds.playRetreatingBackgroundSound();
@@ -201,17 +201,15 @@ class Ghost extends SimpleEnemy
     }
   }
 
-  void _checkToRemoveEyeAnimation() {
-    if (state == GhostState.die && !isMovingAlongThePath) {
-      state = GhostState.normal;
-      speed = normalSpeed;
-      replaceAnimation(GhostSpriteSheet.getByType(type));
-      _startInitialMovement(withDelay: false);
-      if (_gameState.pacManWithPower) {
-        Sounds.playPowerBackgroundSound();
-      } else {
-        Sounds.stopBackgroundSound();
-      }
+  void _removeEyeAnimation() {
+    state = GhostState.normal;
+    speed = normalSpeed;
+    replaceAnimation(GhostSpriteSheet.getByType(type));
+    _startInitialMovement(withDelay: false);
+    if (_gameState.pacManWithPower) {
+      Sounds.playPowerBackgroundSound();
+    } else {
+      Sounds.stopBackgroundSound();
     }
   }
 

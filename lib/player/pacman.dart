@@ -19,7 +19,6 @@ class PacMan extends SimplePlayer
   );
   bool firstSoundMunch = false;
   bool youAreWinner = false;
-  bool innerDeath = false;
   late GameState _gameState;
   async.Timer? _debounceSound;
 
@@ -82,16 +81,13 @@ class PacMan extends SimplePlayer
         } else {
           position = initialPosition;
           idle();
-          innerDeath = false;
+          revive();
         }
       },
       runToTheEnd: true,
     );
-    innerDeath = true;
+    super.die();
   }
-
-  @override
-  bool get isDead => innerDeath;
 
   void _checkIfWinenr() {
     bool winner = gameRef.componentsByType<Dot>().isEmpty;
