@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class CongratulationsDialog extends StatelessWidget {
-  const CongratulationsDialog({Key? key}) : super(key: key);
+class GameOverDialog extends StatelessWidget {
+  const GameOverDialog({Key? key}) : super(key: key);
 
   static show(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        return const CongratulationsDialog();
+        return const GameOverDialog();
       },
     );
   }
@@ -30,15 +30,10 @@ class CongratulationsDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Congratulations!',
+                'Game Over',
                 style: textStyle.copyWith(
                   fontSize: 32,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Thanks for testing this Bonfire game example.',
-                style: textStyle,
               ),
               const SizedBox(height: 20),
               TextButton(
@@ -53,14 +48,11 @@ class CongratulationsDialog extends StatelessWidget {
                 ),
                 onPressed: () {
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/',
+                    '/game',
                     (route) => false,
                   );
                 },
-                child: Text(
-                  'You are welcome',
-                  style: textStyle,
-                ),
+                child:  Text('Try again',style: textStyle,),
               )
             ],
           ),

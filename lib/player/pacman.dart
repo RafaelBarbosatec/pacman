@@ -9,6 +9,7 @@ import 'package:pacman/player/pacman_spritesheet.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
 import 'package:pacman/widgets/congratulation_dialog.dart';
+import 'package:pacman/widgets/game_over_dialog.dart';
 
 import '../main.dart';
 
@@ -77,6 +78,7 @@ class PacMan extends SimplePlayer
       onFinish: () {
         if (_gameState.lifes == 0) {
           removeFromParent();
+          GameOverDialog.show(context);
         } else {
           position = initialPosition;
           idle();
@@ -89,7 +91,7 @@ class PacMan extends SimplePlayer
   }
 
   void _checkIfWinner(double dt) {
-    if (checkInterval('winner', 1000, dt) && !youAreWinner) {
+    if (checkInterval('winner', 2000, dt) && !youAreWinner) {
       bool winner = gameRef.componentsByType<Dot>().isEmpty;
       if (winner) {
         youAreWinner = true;
@@ -110,6 +112,6 @@ class PacMan extends SimplePlayer
     if (_debounceSound?.isActive ?? false) {
       return;
     }
-    _debounceSound = async.Timer(Duration.zero, call);
+    _debounceSound = async.Timer(const Duration(milliseconds: 100), call);
   }
 }

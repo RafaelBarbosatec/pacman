@@ -2,7 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:pacman/main.dart';
 
 class UtilSpriteSheet {
-  static Future<Sprite> get dot => Sprite.load('dot.png');
+  static Future<Sprite> dot = Sprite.load('dot.png');
 
   static Future<SpriteAnimation> get dotPower => SpriteAnimation.load(
         'dot_power.png',
