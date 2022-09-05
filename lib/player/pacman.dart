@@ -47,7 +47,7 @@ class PacMan extends SimplePlayer
 
   @override
   void update(double dt) {
-    _checkIfWinenr(dt);
+    _checkIfWinner(dt);
     super.update(dt);
   }
 
@@ -88,7 +88,7 @@ class PacMan extends SimplePlayer
     super.die();
   }
 
-  void _checkIfWinenr(double dt) {
+  void _checkIfWinner(double dt) {
     if (checkInterval('winner', 1000, dt) && !youAreWinner) {
       bool winner = gameRef.componentsByType<Dot>().isEmpty;
       if (winner) {
