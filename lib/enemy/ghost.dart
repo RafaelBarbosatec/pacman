@@ -1,6 +1,5 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/decoration/eat_score.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
 import 'package:pacman/main.dart';
 import 'package:pacman/player/pacman.dart';
@@ -15,7 +14,6 @@ class Ghost extends SimpleEnemy
     with
         ObjectCollision,
         AutomaticRandomMovement,
-        Sensor,
         MoveToPositionAlongThePath {
   static const normalSpeed = 140.0;
   static const vulnerableSpeed = 90.0;
@@ -46,15 +44,6 @@ class Ghost extends SimpleEnemy
           ),
         ],
       ),
-    );
-
-    setupSensorArea(
-      areaSensor: [
-        CollisionArea.rectangle(
-          size: size - Vector2.all(24),
-          align: Vector2.all(12),
-        ),
-      ],
     );
 
     setupMoveToPositionAlongThePath(
@@ -184,23 +173,6 @@ class Ghost extends SimpleEnemy
     }
   }
 
-  @override
-  void onContact(GameComponent component) {
-    if (enabledBeheavor) {
-      if (component is PacMan) {
-        if (state == GhostState.vulnerable) {
-          _incrementScore();
-          bite();
-        } else if (state == GhostState.normal) {
-          if (!component.isDead) {
-            component.idle();
-            component.die();
-          }
-        }
-      }
-    }
-  }
-
   void _removeEyeAnimation() {
     state = GhostState.normal;
     speed = normalSpeed;
@@ -237,10 +209,5 @@ class Ghost extends SimpleEnemy
       speed = normalSpeed;
       replaceAnimation(GhostSpriteSheet.getByType(type));
     }
-  }
-
-  void _incrementScore() {
-    gameRef.add(EatScore(position: position));
-    _gameState.incrementScore(value: 200);
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async' as async;
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:pacman/decoration/dot.dart';
+import 'package:pacman/decoration/eat_score.dart';
 import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/player/custom_movement_by_joystick.dart';
 import 'package:pacman/player/pacman_spritesheet.dart';
@@ -14,7 +15,7 @@ import 'package:pacman/widgets/game_over_dialog.dart';
 import '../main.dart';
 
 class PacMan extends SimplePlayer
-    with ObjectCollision, CustomMovementByJoystick {
+    with ObjectCollision, Sensor, CustomMovementByJoystick {
   static final Vector2 initialPosition = Vector2(
     9 * Game.tileSize,
     15 * Game.tileSize,
@@ -43,6 +44,16 @@ class PacMan extends SimplePlayer
           ),
         ],
       ),
+    );
+
+    setupSensorArea(
+      areaSensor: [
+        CollisionArea.rectangle(
+          size: size - Vector2.all(24),
+          align: Vector2.all(12),
+        ),
+      ],
+      intervalCheck: 150,
     );
   }
 
@@ -113,5 +124,30 @@ class PacMan extends SimplePlayer
       return;
     }
     _debounceSound = async.Timer(const Duration(milliseconds: 100), call);
+  }
+
+  @override
+  void onContact(GameComponent component) {
+    if (component is Dot && !component.eated) {
+      component.eated = true;
+      eatDot();
+      component.removeFromParent();
+    }
+    if (component is Ghost) {
+      if (component.state == GhostState.vulnerable) {
+        _incrementScore();
+        component.bite();
+      } else if (component.state == GhostState.normal) {
+        if (!isDead) {
+          idle();
+          die();
+        }
+      }
+    }
+  }
+
+  void _incrementScore() {
+    gameRef.add(EatScore(position: position));
+    _gameState.incrementScore(value: 200);
   }
 }

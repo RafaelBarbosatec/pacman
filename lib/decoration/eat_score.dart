@@ -23,7 +23,7 @@ class EatScore extends GameDecoration with Movement, Acceleration {
 
   @override
   void onMount() {
-    applyAccelerationByDirection(-1, Direction.up, stopWhenSpeedZero: true);
+    applyAccelerationByDirection(-4, Direction.up, stopWhenSpeedZero: true);
     super.onMount();
   }
 }
