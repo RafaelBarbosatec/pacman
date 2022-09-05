@@ -8,6 +8,7 @@ import 'package:pacman/player/custom_movement_by_joystick.dart';
 import 'package:pacman/player/pacman_spritesheet.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
+import 'package:pacman/widgets/congratulation_dialog.dart';
 
 import '../main.dart';
 
@@ -92,7 +93,7 @@ class PacMan extends SimplePlayer
       bool winner = gameRef.componentsByType<Dot>().isEmpty;
       if (winner) {
         youAreWinner = true;
-        print('PARABENS VC GANHOU !!');
+        CongratulationsDialog.show(context);
       }
     }
   }

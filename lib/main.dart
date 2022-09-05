@@ -6,6 +6,7 @@ import 'package:pacman/decoration/dot.dart';
 import 'package:pacman/decoration/dot_power.dart';
 import 'package:pacman/decoration/sensor_gate.dart';
 import 'package:pacman/enemy/ghost.dart';
+import 'package:pacman/menu.dart';
 import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
@@ -29,7 +30,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Game(),
+      routes: {
+        '/': (_) => const MenuPage(),
+        '/game': (_) => const Game(),
+      },
     );
   }
 }
