@@ -1,4 +1,6 @@
+import 'package:bonfire/state_manager/bonfire_injector.dart';
 import 'package:flutter/material.dart';
+import 'package:pacman/util/game_state.dart';
 
 class GameOverDialog extends StatelessWidget {
   const GameOverDialog({Key? key}) : super(key: key);
@@ -15,6 +17,7 @@ class GameOverDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GameState gameState = BonfireInjector.instance.get();
     TextStyle textStyle = const TextStyle(color: Colors.white);
     return Center(
       child: Material(
@@ -47,12 +50,16 @@ class GameOverDialog extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+                  gameState.reset();
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     '/game',
                     (route) => false,
                   );
                 },
-                child:  Text('Try again',style: textStyle,),
+                child: Text(
+                  'Try again',
+                  style: textStyle,
+                ),
               )
             ],
           ),

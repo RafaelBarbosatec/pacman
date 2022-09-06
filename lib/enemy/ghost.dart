@@ -11,10 +11,7 @@ enum GhostType { red, blue, pink, orange }
 enum GhostState { normal, vulnerable, die }
 
 class Ghost extends SimpleEnemy
-    with
-        ObjectCollision,
-        AutomaticRandomMovement,
-        MoveToPositionAlongThePath {
+    with ObjectCollision, AutomaticRandomMovement, MoveToPositionAlongThePath {
   static const normalSpeed = 140.0;
   static const vulnerableSpeed = 90.0;
   static const dieSpeed = 240.0;

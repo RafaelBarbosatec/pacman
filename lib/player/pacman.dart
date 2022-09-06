@@ -88,8 +88,10 @@ class PacMan extends SimplePlayer
       PacManSpriteSheet.die,
       onFinish: () {
         if (_gameState.lifes == 0) {
-          removeFromParent();
-          GameOverDialog.show(context);
+          async.Future.delayed(Duration.zero, () {
+            GameOverDialog.show(context);
+            removeFromParent();
+          });
         } else {
           position = initialPosition;
           idle();

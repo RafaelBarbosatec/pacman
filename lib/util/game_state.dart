@@ -44,4 +44,10 @@ class GameState extends ChangeNotifier {
   void listenChangePower(ValueChanged<bool> onChange) {
     onChangePowerObserves.add(onChange);
   }
+
+  void reset() {
+    _score = 0;
+    _lifes = 3;
+    onChangePowerObserves.clear();
+  }
 }
