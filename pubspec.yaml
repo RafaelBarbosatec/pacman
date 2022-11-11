@@ -30,7 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bonfire: ^2.10.5
+  bonfire: ^2.11.2
   flame_audio: ^1.3.1
 
 dev_dependencies:
