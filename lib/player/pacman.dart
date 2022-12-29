@@ -104,7 +104,7 @@ class PacMan extends SimplePlayer
   }
 
   void _checkIfWinner(double dt) {
-    if (checkInterval('winner', 2000, dt) && !youAreWinner) {
+    if (checkInterval('winner', 1000, dt) && !youAreWinner) {
       bool winner = gameRef.componentsByType<Dot>().isEmpty;
       if (winner) {
         youAreWinner = true;
