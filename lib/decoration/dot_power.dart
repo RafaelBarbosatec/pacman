@@ -1,7 +1,7 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/player/pacman.dart';
-import 'package:pacman/util/game_state.dart';
-import 'package:pacman/util/util_spritesheet.dart';
+import 'package:avnetman/player/pacman.dart';
+import 'package:avnetman/util/game_state.dart';
+import 'package:avnetman/util/util_spritesheet.dart';
 
 class DotPower extends GameDecoration with Sensor {
   bool givePower = false;
@@ -10,13 +10,13 @@ class DotPower extends GameDecoration with Sensor {
     required super.position,
   }) : super.withAnimation(
           animation: UtilSpriteSheet.dotPower,
-          size: Vector2.all(18),
+          size: Vector2.all(48),
         ) {
     setupSensorArea(
       areaSensor: [
         CollisionArea.rectangle(
-          size: Vector2.all(16),
-          align: Vector2.all(2),
+          size: Vector2.all(48),
+          align: Vector2.all(1),
         ),
       ],
     );
@@ -25,11 +25,9 @@ class DotPower extends GameDecoration with Sensor {
   @override
   void onContact(GameComponent component) {
     if (component is PacMan) {
-      if (!givePower) {
-        givePower = true;
-        removeFromParent();
-        _gameState.startPacManPower();
-      }
+      givePower = true;
+      removeFromParent();
+      _gameState.startPacManPower();
     }
   }
 

@@ -1,5 +1,5 @@
-name: pacman
-description: A new Flutter project.
+name: avnetman
+description: AvnetMan demo.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -32,6 +32,7 @@ dependencies:
 
   bonfire: ^2.12.6
   flame_audio: ^2.0.0
+  mqtt_client: ^9.7.3
 
 dev_dependencies:
   flutter_test:

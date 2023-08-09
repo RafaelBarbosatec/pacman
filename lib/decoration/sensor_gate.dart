@@ -1,5 +1,5 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/main.dart';
+import 'package:avnetman/main.dart';
 
 enum DiractionGate { left, right }
 
@@ -11,21 +11,6 @@ class SensorGate extends GameDecoration with Sensor {
 
   @override
   void onContact(GameComponent component) {
-    if (canMove) {
-      canMove = false;
-      switch (direction) {
-        case DiractionGate.left:
-          component.position = component.position.copyWith(
-            x: 18 * Game.tileSize,
-          );
-          break;
-        case DiractionGate.right:
-          component.position = component.position.copyWith(
-            x: 0,
-          );
-          break;
-      }
-    }
   }
 
   @override

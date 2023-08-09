@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/enemy/ghost.dart';
-import 'package:pacman/main.dart';
+import 'package:avnetman/enemy/ghost.dart';
+import 'package:avnetman/main.dart';
 
 mixin CustomMovementByJoystick on SimplePlayer {
   JoystickMoveDirectional _runDirection = JoystickMoveDirectional.IDLE;

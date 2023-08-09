@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:pacman/main.dart';
-import 'package:pacman/util/util_spritesheet.dart';
+import 'package:avnetman/main.dart';
+import 'package:avnetman/util/util_spritesheet.dart';
 
 class EatScore extends GameDecoration with Movement, Acceleration {
   EatScore({

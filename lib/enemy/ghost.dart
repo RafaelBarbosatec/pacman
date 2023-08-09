@@ -1,10 +1,10 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/enemy/ghost_spritesheet.dart';
-import 'package:pacman/main.dart';
-import 'package:pacman/player/pacman.dart';
-import 'package:pacman/util/game_state.dart';
-import 'package:pacman/util/sounds.dart';
+import 'package:avnetman/enemy/ghost_spritesheet.dart';
+import 'package:avnetman/main.dart';
+import 'package:avnetman/player/pacman.dart';
+import 'package:avnetman/util/game_state.dart';
+import 'package:avnetman/util/sounds.dart';
 
 enum GhostType { red, blue, pink, orange }
 
@@ -12,12 +12,12 @@ enum GhostState { normal, vulnerable, die }
 
 class Ghost extends SimpleEnemy
     with ObjectCollision, AutomaticRandomMovement, MoveToPositionAlongThePath {
-  static const normalSpeed = 140.0;
-  static const vulnerableSpeed = 90.0;
+  static const normalSpeed = 120.0;
+  static const vulnerableSpeed = 120.0;
   static const dieSpeed = 240.0;
   GhostState state = GhostState.normal;
   final Vector2 _startPositionAfterDie = Vector2(
-    Game.tileSize * 9,
+    Game.tileSize * 8,
     Game.tileSize * 9,
   );
   late GameState _gameState;

@@ -2,47 +2,47 @@ import 'package:bonfire/bonfire.dart';
 
 class PacManSpriteSheet {
   static Future<SpriteAnimation> get idle => SpriteAnimation.load(
-        'pacman-sprites.png',
+        'pavnet_man.png',
         SpriteAnimationData.sequenced(
           amount: 1,
-          stepTime: 0.1,
+          stepTime: 0.05,
           textureSize: Vector2.all(48),
+          texturePosition: Vector2(0, 0),
         ),
       );
 
   static Future<SpriteAnimation> get runRight => SpriteAnimation.load(
-        'pacman-sprites.png',
+        'pavnet_man.png',
         SpriteAnimationData.sequenced(
-          amount: 3,
-          stepTime: 0.1,
+          amount: 6,
+          stepTime: 0.05,
           textureSize: Vector2.all(48),
         ),
       );
   static Future<SpriteAnimation> get runUp => SpriteAnimation.load(
-        'pacman-sprites.png',
+        'pavnet_man.png',
         SpriteAnimationData.sequenced(
-            amount: 3,
-            stepTime: 0.1,
+            amount: 6,
+            stepTime: 0.05,
             textureSize: Vector2.all(48),
-            texturePosition: Vector2(144, 0)),
+            texturePosition: Vector2(288, 0)),
       );
   static Future<SpriteAnimation> get runDown => SpriteAnimation.load(
-        'pacman-sprites.png',
+        'pavnet_man.png',
         SpriteAnimationData.sequenced(
-          amount: 3,
-          stepTime: 0.1,
+          amount: 6,
+          stepTime: 0.05,
           textureSize: Vector2.all(48),
-          texturePosition: Vector2(288, 0),
+          texturePosition: Vector2(576, 0),
         ),
       );
 
   static Future<SpriteAnimation> get die => SpriteAnimation.load(
-        'pacman-sprites.png',
+        'char_die.png',
         SpriteAnimationData.sequenced(
-          amount: 6,
-          stepTime: 0.3,
-          textureSize: Vector2.all(48),
-          texturePosition: Vector2(0, 48),
+          amount: 5,
+          stepTime: 0.08,
+          textureSize: Vector2.all(48)
         ),
       );
 }

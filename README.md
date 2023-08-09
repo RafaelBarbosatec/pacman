@@ -1,5 +1,5 @@
-# Bonfire PacMan
-![](https://github.com/RafaelBarbosatec/pacman/blob/main/media/screenShot.png)
+# Bonfire AvnetMan
 
+The adventures of AvnetMan in the modern world of electronics
 
-[Play in itch.io](https://rafaelbarbosatec.itch.io/pacman-bonfire)
+Derived from [Pacman](https://github.com/RafaelBarbosatec/pacman)

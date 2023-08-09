@@ -2,22 +2,22 @@ import 'dart:async' as async;
 
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/decoration/dot.dart';
-import 'package:pacman/decoration/eat_score.dart';
-import 'package:pacman/enemy/ghost.dart';
-import 'package:pacman/player/custom_movement_by_joystick.dart';
-import 'package:pacman/player/pacman_spritesheet.dart';
-import 'package:pacman/util/game_state.dart';
-import 'package:pacman/util/sounds.dart';
-import 'package:pacman/widgets/congratulation_dialog.dart';
-import 'package:pacman/widgets/game_over_dialog.dart';
+import 'package:avnetman/decoration/dot.dart';
+import 'package:avnetman/decoration/eat_score.dart';
+import 'package:avnetman/enemy/ghost.dart';
+import 'package:avnetman/player/custom_movement_by_joystick.dart';
+import 'package:avnetman/player/pacman_spritesheet.dart';
+import 'package:avnetman/util/game_state.dart';
+import 'package:avnetman/util/sounds.dart';
+import 'package:avnetman/widgets/congratulation_dialog.dart';
+import 'package:avnetman/widgets/game_over_dialog.dart';
 
 import '../main.dart';
 
 class PacMan extends SimplePlayer
     with ObjectCollision, Sensor, CustomMovementByJoystick {
   static final Vector2 initialPosition = Vector2(
-    9 * Game.tileSize,
+    8 * Game.tileSize,
     15 * Game.tileSize,
   );
   bool firstSoundMunch = false;
@@ -84,6 +84,7 @@ class PacMan extends SimplePlayer
     Sounds.stopBackgroundSound();
     Sounds.death();
     _gameState.decrementLife();
+    _gameState.decrementScore(500);
     animation?.playOnce(
       PacManSpriteSheet.die,
       onFinish: () {

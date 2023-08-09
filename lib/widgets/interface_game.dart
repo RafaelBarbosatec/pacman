@@ -1,7 +1,7 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/util/game_state.dart';
-import 'package:pacman/util/util_spritesheet.dart';
+import 'package:avnetman/util/game_state.dart';
+import 'package:avnetman/util/util_spritesheet.dart';
 
 class InterfaceGame extends StatefulWidget {
   const InterfaceGame({Key? key}) : super(key: key);
@@ -30,7 +30,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
   @override
   Widget build(BuildContext context) {
     const textStyle = TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontWeight: FontWeight.bold,
       fontSize: 18,
     );
@@ -39,7 +39,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: const Color.fromARGB(178, 0x81, 0xc7, 0x84),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -57,7 +57,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
                 return SizedBox(
                   width: sizeIcon,
                   height: sizeIcon,
-                  child: UtilSpriteSheet.pacman.asWidget(),
+                  child: UtilSpriteSheet.dotPower.asWidget(),
                 );
               }),
             )

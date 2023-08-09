@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/enemy/ghost_spritesheet.dart';
-import 'package:pacman/player/pacman_spritesheet.dart';
+import 'package:flutter/services.dart';
+import 'package:avnetman/enemy/ghost_spritesheet.dart';
+import 'package:avnetman/main.dart';
+import 'package:avnetman/player/pacman_spritesheet.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({Key? key}) : super(key: key);
@@ -12,8 +14,10 @@ class MenuPage extends StatefulWidget {
   State<MenuPage> createState() => _MenuPageState();
 }
 
+class EnterButtonIntent extends Intent {}
+
 class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
-  Widget firstAnim = GhostSpriteSheet.runRightRed.asWidget();
+  Widget firstAnim = GhostSpriteSheet.red.asWidget();
   Widget secondAnim = PacManSpriteSheet.runRight.asWidget();
 
   bool withPower = false;
@@ -42,71 +46,97 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = const TextStyle(color: Colors.white, fontSize: 20);
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'PacMan',
-                  style: textStyle.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 40,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SlideTransition(
-                  position: animation,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Row(
+    AppConfig config = AppConfig();
+    config.read(context);
+    TextStyle textStyle = const TextStyle(color: Colors.black, fontSize: 20);
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.enter): EnterButtonIntent(),
+      },
+      child: Actions(
+        actions: {
+          EnterButtonIntent: CallbackAction(onInvoke: (i) {
+            Navigator.of(context).pushNamed('/game');
+            return null;
+          }),
+        },
+        child: Focus(
+            autofocus: true,
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              body: Stack(
+                children: [
+                  Center(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        firstAnim,
-                        const SizedBox(width: 20),
-                        secondAnim,
+                        Text(
+                          'AVNETman',
+                          style: textStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 40,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        SlideTransition(
+                          position: animation,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                firstAnim,
+                                const SizedBox(width: 20),
+                                secondAnim,
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed('/game'),
+                          style: ButtonStyle(
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(20)),
+                            overlayColor: MaterialStateProperty.all(
+                              Colors.white.withOpacity(0.2),
+                            ),
+                            side: MaterialStateProperty.all(
+                              const BorderSide(color: Colors.white),
+                            ),
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.transparent),
+                            shadowColor:
+                                MaterialStateProperty.all(Colors.transparent),
+                          ),
+                          icon: Image.asset('assets/images/button_blue.png',
+                              height: config.button_pic_h,
+                              width: config.button_pic_w,
+                              fit: BoxFit.fill),
+                          label: Text(
+                            'Start Game',
+                            style: textStyle,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/game'),
-                  style: ButtonStyle(
-                    padding:
-                        MaterialStateProperty.all(const EdgeInsets.all(20)),
-                    overlayColor: MaterialStateProperty.all(
-                      Colors.white.withOpacity(0.2),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'Powered by Bonfire - Flutter',
+                        style: textStyle.copyWith(
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                    side: MaterialStateProperty.all(
-                      const BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  child: Text(
-                    'Start Game',
-                    style: textStyle,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                'Powered by Bonfire - Flutter',
-                style: textStyle.copyWith(
-                  fontSize: 12,
-                ),
+                  )
+                ],
               ),
-            ),
-          )
-        ],
+            )),
       ),
     );
   }
@@ -122,16 +152,16 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         secondAnim = PacManSpriteSheet.runRight.asWidget();
         switch (Random().nextInt(3)) {
           case 0:
-            firstAnim = GhostSpriteSheet.runRightBlue.asWidget();
+            firstAnim = GhostSpriteSheet.red.asWidget();
             break;
           case 1:
-            firstAnim = GhostSpriteSheet.runRightBlue.asWidget();
+            firstAnim = GhostSpriteSheet.blue.asWidget();
             break;
           case 2:
-            firstAnim = GhostSpriteSheet.runRightOrange.asWidget();
+            firstAnim = GhostSpriteSheet.orange.asWidget();
             break;
           case 3:
-            firstAnim = GhostSpriteSheet.runRightPink.asWidget();
+            firstAnim = GhostSpriteSheet.pink.asWidget();
             break;
         }
       }

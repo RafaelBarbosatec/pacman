@@ -1,22 +1,35 @@
-import 'dart:math';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
-import 'package:pacman/decoration/dot.dart';
-import 'package:pacman/decoration/dot_power.dart';
-import 'package:pacman/decoration/sensor_gate.dart';
-import 'package:pacman/enemy/ghost.dart';
-import 'package:pacman/menu.dart';
-import 'package:pacman/player/pacman.dart';
-import 'package:pacman/util/game_state.dart';
-import 'package:pacman/util/sounds.dart';
-import 'package:pacman/widgets/interface_game.dart';
+import 'package:avnetman/decoration/dot.dart';
+import 'package:avnetman/decoration/dot_power.dart';
+import 'package:avnetman/decoration/sensor_gate.dart';
+import 'package:avnetman/enemy/ghost.dart';
+import 'package:avnetman/menu.dart';
+import 'package:avnetman/player/pacman.dart';
+import 'package:avnetman/util/game_state.dart';
+import 'package:avnetman/util/mqtt.dart';
+import 'package:avnetman/util/sounds.dart';
+import 'package:avnetman/widgets/interface_game.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   BonfireInjector.instance.put((i) => GameState());
   Sounds.initialize();
+
+  startServices();
+
   runApp(const MyApp());
+}
+
+void startServices(){
+  // mqtt doesn't work in web profile
+  if (! kIsWeb) {
+    mqttService.start();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -38,23 +51,65 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class AppConfig {
+  double height = -1;
+  double width = -1;
+  double zoom = 1.0;
+  double button_pic_h = 30.0;
+  double button_pic_w = 30.0;
+  double scanner_pic_h = 194;
+  double scanner_pic_w = 259;
+
+  void read(BuildContext context) {
+    Size sizeScreen = MediaQuery.of(context).size;
+    const double heightMap = 1004.0;
+
+    height = sizeScreen.height;
+    width = sizeScreen.width;
+    zoom = height / heightMap;
+
+    List<String> items = [
+      "/apps/pacman/config.json",
+      "/usr/share/pacman/config.json", 
+      "config.json"];
+    for (var item in items) {
+      try {
+        final File file = File(item);
+        final response = file.readAsStringSync();
+        final config = jsonDecode(response);
+
+        height = config["height"] ?? sizeScreen.height;
+        width = config["width"] ?? sizeScreen.width;
+        zoom = config["zoom"] ?? width / heightMap;
+        button_pic_h = config["button_pic_h"] ?? button_pic_h;
+        button_pic_w = config["button_pic_w"] ?? button_pic_w;
+        scanner_pic_h = config["scanner_pic_h"] ?? scanner_pic_h;
+        scanner_pic_w = config["scanner_pic_w"] ?? scanner_pic_w;
+        return;
+      } catch (e) {
+        continue;
+      }
+    }
+  }
+}
+
 class Game extends StatelessWidget {
-  static const double heightMap = 1004.0;
   static const double tileSize = 48.0;
   const Game({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Size sizeScreen = MediaQuery.of(context).size;
-    double size = min(sizeScreen.width, sizeScreen.height);
-    double zoom = size / heightMap;
+    AppConfig config = AppConfig();
+    config.read(context);
+    double zoom = config.zoom;
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Center(
         child: SizedBox(
-          width: size,
-          height: size,
+          width: config.width,
+          height: config.height,
           child: BonfireWidget(
+            backgroundColor: Colors.white,
             map: WorldMapByTiled(
               'map.tmj',
               objectsBuilder: {
