@@ -15,7 +15,7 @@ import 'package:pacman/widgets/game_over_dialog.dart';
 import '../main.dart';
 
 class PacMan extends SimplePlayer
-    with ObjectCollision, Sensor, CustomMovementByJoystick {
+    with BlockMovementCollision, CustomMovementByJoystick {
   static final Vector2 initialPosition = Vector2(
     9 * Game.tileSize,
     15 * Game.tileSize,
@@ -34,27 +34,18 @@ class PacMan extends SimplePlayer
             runUp: PacManSpriteSheet.runUp,
             enabledFlipY: true,
           ),
-        ) {
-    setupCollision(
-      CollisionConfig(
-        collisions: [
-          CollisionArea.rectangle(
-            size: size - Vector2.all(2),
-            align: Vector2.all(1),
-          ),
-        ],
+          speed: 140,
+        );
+
+  @override
+  Future<void> onLoad() {
+    add(
+      RectangleHitbox(
+        size: size / 1.4,
+        position: Vector2.all(5.6),
       ),
     );
-
-    setupSensorArea(
-      areaSensor: [
-        CollisionArea.rectangle(
-          size: size - Vector2.all(24),
-          align: Vector2.all(12),
-        ),
-      ],
-      intervalCheck: 150,
-    );
+    return super.onLoad();
   }
 
   @override
@@ -66,21 +57,13 @@ class PacMan extends SimplePlayer
   @override
   void onMount() {
     _gameState = BonfireInjector.instance.get();
-    gameRef.camera.target = null;
-    gameRef.camera.moveLeft(Game.tileSize);
+    gameRef.bonfireCamera.stop();
     super.onMount();
   }
 
   @override
-  bool onCollision(GameComponent component, bool active) {
-    if (component is Ghost) {
-      return false;
-    }
-    return super.onCollision(component, active);
-  }
-
-  @override
   void die() {
+    stopMove(forceIdle: true);
     Sounds.stopBackgroundSound();
     Sounds.death();
     _gameState.decrementLife();
@@ -94,7 +77,7 @@ class PacMan extends SimplePlayer
           });
         } else {
           position = initialPosition;
-          idle();
+          stopMove(forceIdle: true);
           revive();
         }
       },
@@ -105,7 +88,7 @@ class PacMan extends SimplePlayer
 
   void _checkIfWinner(double dt) {
     if (checkInterval('winner', 1000, dt) && !youAreWinner) {
-      bool winner = gameRef.componentsByType<Dot>().isEmpty;
+      bool winner = gameRef.query<Dot>().isEmpty;
       if (winner) {
         youAreWinner = true;
         CongratulationsDialog.show(context);
@@ -129,7 +112,20 @@ class PacMan extends SimplePlayer
   }
 
   @override
-  void onContact(GameComponent component) {
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
+    _handleContact(other);
+    if (other is Dot) {
+      return false;
+    }
+    return super.onBlockMovement(intersectionPoints, other);
+  }
+
+  void _incrementScore() {
+    gameRef.add(EatScore(position: position));
+    _gameState.incrementScore(value: 200);
+  }
+
+  void _handleContact(GameComponent component) {
     if (component is Dot && !component.eated) {
       component.eated = true;
       eatDot();
@@ -141,15 +137,9 @@ class PacMan extends SimplePlayer
         component.bite();
       } else if (component.state == GhostState.normal) {
         if (!isDead) {
-          idle();
           die();
         }
       }
     }
-  }
-
-  void _incrementScore() {
-    gameRef.add(EatScore(position: position));
-    _gameState.incrementScore(value: 200);
   }
 }

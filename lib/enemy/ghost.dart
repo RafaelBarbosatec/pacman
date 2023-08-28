@@ -1,8 +1,8 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
+import 'package:pacman/decoration/dot.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
 import 'package:pacman/main.dart';
-import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
 
@@ -11,7 +11,10 @@ enum GhostType { red, blue, pink, orange }
 enum GhostState { normal, vulnerable, die }
 
 class Ghost extends SimpleEnemy
-    with ObjectCollision, AutomaticRandomMovement, MoveToPositionAlongThePath {
+    with
+        BlockMovementCollision,
+        AutomaticRandomMovement,
+        MoveToPositionAlongThePath {
   static const normalSpeed = 140.0;
   static const vulnerableSpeed = 90.0;
   static const dieSpeed = 240.0;
@@ -32,20 +35,20 @@ class Ghost extends SimpleEnemy
           animation: GhostSpriteSheet.getByType(type),
           speed: normalSpeed,
         ) {
-    setupCollision(
-      CollisionConfig(
-        collisions: [
-          CollisionArea.rectangle(
-            size: size - Vector2.all(4),
-            align: Vector2.all(2),
-          ),
-        ],
-      ),
-    );
-
     setupMoveToPositionAlongThePath(
       pathLineColor: Colors.transparent,
     );
+  }
+
+  @override
+  Future<void> onLoad() {
+    add(
+      RectangleHitbox(
+        size: size / 1.5,
+        position: size / 6,
+      ),
+    );
+    return super.onLoad();
   }
 
   @override
@@ -53,23 +56,16 @@ class Ghost extends SimpleEnemy
     if (enabledBeheavor && !isMovingAlongThePath) {
       seePlayer(
         observed: (player) {
-          bool move = false;
           if (state == GhostState.vulnerable) {
-            move = positionsItselfAndKeepDistance(
+            positionsItselfAndKeepDistance(
               player,
-              positioned: (_) {},
               minDistanceFromPlayer: Game.tileSize * 3,
             );
           } else {
-            move = followComponent(
-              player,
-              dt,
-              closeComponent: (_) {},
+            moveTowardsTarget(
+              target: player,
               margin: -10,
             );
-          }
-          if (!move) {
-            _runRandom(dt);
           }
         },
         radiusVision: Game.tileSize * 2,
@@ -114,7 +110,8 @@ class Ghost extends SimpleEnemy
     return [
       gameRef.player,
       ...gameRef.enemies(),
-    ];
+      ...gameRef.query<Dot>(),
+    ].map((e) => e!.children.query<ShapeHitbox>().first).toList();
   }
 
   @override
@@ -183,11 +180,20 @@ class Ghost extends SimpleEnemy
   }
 
   @override
-  bool onCollision(GameComponent component, bool active) {
-    if (component is Ghost || component is PacMan) {
+  bool onComponentTypeCheck(PositionComponent other) {
+    if (other is Dot || other is Ghost) {
       return false;
     }
-    return super.onCollision(component, active);
+    return super.onComponentTypeCheck(other);
+  }
+
+  @override
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
+    print(other);
+    if (other is Tile) {
+      _correctPositionToCenterTile();
+    }
+    return super.onBlockMovement(intersectionPoints, other);
   }
 
   void _pacManChangePower(bool value) {
@@ -206,5 +212,11 @@ class Ghost extends SimpleEnemy
       speed = normalSpeed;
       replaceAnimation(GhostSpriteSheet.getByType(type));
     }
+  }
+
+  void _correctPositionToCenterTile() {
+    int w = (position.x / Game.tileSize).round();
+    int h = (position.y / Game.tileSize).round();
+    position = Vector2(w * Game.tileSize, h * Game.tileSize);
   }
 }

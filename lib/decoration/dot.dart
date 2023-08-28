@@ -11,6 +11,11 @@ class Dot extends GameDecoration {
         );
 
   @override
-  int get priority => LayerPriority.MAP + 1;
+  Future<void> onLoad() {
+    add(RectangleHitbox(size: size));
+    return super.onLoad();
+  }
 
+  @override
+  int get priority => LayerPriority.MAP + 1;
 }
