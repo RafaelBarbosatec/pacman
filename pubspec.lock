@@ -76,10 +76,11 @@ packages:
   bonfire:
     dependency: "direct main"
     description:
-      name: bonfire
-      sha256: "6f78ec8c62138de3afc3f373215dd932cec2e73c4f74b91b251f2ecf26db1d2c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a0a1994c874e67978fe50876f7464f1f2503d370
+      resolved-ref: a0a1994c874e67978fe50876f7464f1f2503d370
+      url: "https://github.com/RafaelBarbosatec/bonfire.git"
+    source: git
     version: "3.0.0-beta.11"
   boolean_selector:
     dependency: transitive

@@ -39,10 +39,11 @@ class PacMan extends SimplePlayer
 
   @override
   Future<void> onLoad() {
+    final s = size / 1.2;
     add(
       RectangleHitbox(
-        size: size / 1.4,
-        position: Vector2.all(5.6),
+        size: s,
+        position: (size - s) / 2,
       ),
     );
     return super.onLoad();
@@ -63,6 +64,7 @@ class PacMan extends SimplePlayer
 
   @override
   void die() {
+    super.die();
     stopMove(forceIdle: true);
     Sounds.stopBackgroundSound();
     Sounds.death();
@@ -83,7 +85,6 @@ class PacMan extends SimplePlayer
       },
       runToTheEnd: true,
     );
-    super.die();
   }
 
   void _checkIfWinner(double dt) {
@@ -117,6 +118,7 @@ class PacMan extends SimplePlayer
     if (other is Dot) {
       return false;
     }
+
     return super.onBlockMovement(intersectionPoints, other);
   }
 
@@ -131,14 +133,12 @@ class PacMan extends SimplePlayer
       eatDot();
       component.removeFromParent();
     }
-    if (component is Ghost) {
+    if (component is Ghost && !isDead) {
       if (component.state == GhostState.vulnerable) {
         _incrementScore();
         component.bite();
-      } else if (component.state == GhostState.normal) {
-        if (!isDead) {
-          die();
-        }
+      } else if (component.state == GhostState.normal && !isDead) {
+        die();
       }
     }
   }

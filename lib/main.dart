@@ -90,7 +90,7 @@ class Game extends StatelessWidget {
           initialActiveOverlays: const ['score'],
           cameraConfig: CameraConfig(
             moveOnlyMapArea: true,
-            initialMapZoomFit: InitialMapZoomFitEnum.cover,
+            initialMapZoomFit: InitialMapZoomFitEnum.fitHeight,
           ),
           player: PacMan(
             position: PacMan.initialPosition,

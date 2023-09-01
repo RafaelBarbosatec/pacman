@@ -42,10 +42,11 @@ class Ghost extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
+    final s = size / 1.5;
     add(
       RectangleHitbox(
-        size: size / 1.5,
-        position: size / 6,
+        size: s,
+        position: (size - s) / 2,
       ),
     );
     return super.onLoad();
@@ -82,6 +83,7 @@ class Ghost extends SimpleEnemy
       maxDistance: (Game.tileSize * 4).toInt(),
       minDistance: (Game.tileSize * 4).toInt(),
       timeKeepStopped: 0,
+      direction: RandomMovementDirectionEnum.horizontallyOrvertically,
     );
   }
 
@@ -94,8 +96,8 @@ class Ghost extends SimpleEnemy
         idleRight: animation,
         runRight: animation,
       ),
+      doIdle: false,
     );
-
     speed = dieSpeed;
     moveToPositionAlongThePath(
       _startPositionAfterDie,
@@ -170,7 +172,7 @@ class Ghost extends SimpleEnemy
   void _removeEyeAnimation() {
     state = GhostState.normal;
     speed = normalSpeed;
-    replaceAnimation(GhostSpriteSheet.getByType(type));
+    replaceAnimation(GhostSpriteSheet.getByType(type), doIdle: false);
     _startInitialMovement(withDelay: false);
     if (_gameState.pacManWithPower) {
       Sounds.playPowerBackgroundSound();
@@ -180,18 +182,9 @@ class Ghost extends SimpleEnemy
   }
 
   @override
-  bool onComponentTypeCheck(PositionComponent other) {
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
     if (other is Dot || other is Ghost) {
       return false;
-    }
-    return super.onComponentTypeCheck(other);
-  }
-
-  @override
-  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
-    print(other);
-    if (other is Tile) {
-      _correctPositionToCenterTile();
     }
     return super.onBlockMovement(intersectionPoints, other);
   }
@@ -206,12 +199,22 @@ class Ghost extends SimpleEnemy
           idleRight: animation,
           runRight: animation,
         ),
+        doIdle: false,
       );
     } else if (state != GhostState.die) {
       state = GhostState.normal;
       speed = normalSpeed;
-      replaceAnimation(GhostSpriteSheet.getByType(type));
+      replaceAnimation(
+        GhostSpriteSheet.getByType(type),
+        doIdle: false,
+      );
     }
+  }
+
+  @override
+  void stopMove({bool forceIdle = false, bool isX = true, bool isY = true}) {
+    _correctPositionToCenterTile();
+    super.stopMove(forceIdle: forceIdle, isX: isX, isY: isY);
   }
 
   void _correctPositionToCenterTile() {

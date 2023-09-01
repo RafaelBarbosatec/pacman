@@ -14,27 +14,25 @@ mixin CustomMovementByJoystick on SimplePlayer {
     if (!_canMove(event.directional)) {
       return;
     }
-    _correctPositionToCenterTile();
     super.joystickChangeDirectional(event);
   }
 
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Tile) {
-      super.joystickChangeDirectional(
-        JoystickDirectionalEvent(directional: JoystickMoveDirectional.IDLE),
-      );
-    }
+  // @override
+  // void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+  //   if (other is Tile) {
+  //     _correctPositionToCenterTile();
+  //     idle();
+  //   }
 
-    super.onCollision(intersectionPoints, other);
-  }
+  //   super.onCollision(intersectionPoints, other);
+  // }
 
   bool _canMove(JoystickMoveDirectional move) {
     final direction = _getDirectionOfMovement(move);
 
     final v = gameRef.collisions().where((element) {
       return element.toAbsoluteRect().overlaps(
-                rectCollision.deflate(5).translate(direction.x, direction.y),
+                rectCollision.deflate(8).translate(direction.x, direction.y),
               ) &&
           element.parent != this &&
           element.parent is! Dot &&
@@ -80,5 +78,17 @@ mixin CustomMovementByJoystick on SimplePlayer {
     int w = (position.x / Game.tileSize).round();
     int h = (position.y / Game.tileSize).round();
     position = Vector2(w * Game.tileSize, h * Game.tileSize);
+  }
+
+  Direction? _dir;
+
+  @override
+  void onMove(
+      double speed, Vector2 displacement, Direction direction, double angle) {
+    if (direction != _dir) {
+      _dir = direction;
+      _correctPositionToCenterTile();
+    }
+    super.onMove(speed, displacement, direction, angle);
   }
 }

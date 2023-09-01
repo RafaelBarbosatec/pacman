@@ -30,7 +30,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bonfire: ^3.0.0-beta.11
+  bonfire: 
+    git:
+      url: https://github.com/RafaelBarbosatec/bonfire.git
+      ref: a0a1994c874e67978fe50876f7464f1f2503d370
   flame_audio: ^2.0.5
 
 dev_dependencies:

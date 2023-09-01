@@ -26,7 +26,6 @@
             20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 0],
          "height":21,
          "id":1,
-         "locked":true,
          "name":"Tile Layer 1",
          "opacity":1,
          "type":"tilelayer",
@@ -72,6 +71,7 @@
         {
          "draworder":"topdown",
          "id":4,
+         "locked":true,
          "name":"dots",
          "objects":[
                 {
@@ -4324,7 +4324,6 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
@@ -4375,7 +4374,6 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
@@ -4476,7 +4474,6 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
@@ -4602,7 +4599,6 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
@@ -4639,7 +4635,6 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
