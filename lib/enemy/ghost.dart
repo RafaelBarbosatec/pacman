@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:bonfire/bonfire.dart';
-import 'package:flutter/material.dart';
 import 'package:pacman/decoration/dot.dart';
+import 'package:pacman/decoration/dot_power.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
 import 'package:pacman/main.dart';
 import 'package:pacman/util/game_state.dart';
@@ -11,13 +13,10 @@ enum GhostType { red, blue, pink, orange }
 enum GhostState { normal, vulnerable, die }
 
 class Ghost extends SimpleEnemy
-    with
-        BlockMovementCollision,
-        AutomaticRandomMovement,
-        MoveToPositionAlongThePath {
-  static const normalSpeed = 140.0;
+    with BlockMovementCollision, AutomaticRandomMovement, PathFinding {
+  static const normalSpeed = 100.0;
   static const vulnerableSpeed = 90.0;
-  static const dieSpeed = 240.0;
+  static const dieSpeed = 200.0;
   GhostState state = GhostState.normal;
   final Vector2 _startPositionAfterDie = Vector2(
     Game.tileSize * 9,
@@ -35,14 +34,15 @@ class Ghost extends SimpleEnemy
           animation: GhostSpriteSheet.getByType(type),
           speed: normalSpeed,
         ) {
-    setupMoveToPositionAlongThePath(
-      pathLineColor: Colors.transparent,
+    setupPathFinding(
+      // pathLineColor: Colors.transparent,
+      showBarriersCalculated: true,
     );
   }
 
   @override
   Future<void> onLoad() {
-    final s = size / 1.5;
+    final s = size * 0.7;
     add(
       RectangleHitbox(
         size: s,
@@ -77,11 +77,12 @@ class Ghost extends SimpleEnemy
   }
 
   void _runRandom(double dt) {
+    int randomDistance = Random().nextBool() ? 2 : 4;
     runRandomMovement(
       dt,
       speed: speed,
-      maxDistance: (Game.tileSize * 4).toInt(),
-      minDistance: (Game.tileSize * 4).toInt(),
+      maxDistance: (Game.tileSize * randomDistance).toInt(),
+      minDistance: (Game.tileSize * randomDistance).toInt(),
       timeKeepStopped: 0,
       direction: RandomMovementDirectionEnum.horizontallyOrvertically,
     );
@@ -99,7 +100,7 @@ class Ghost extends SimpleEnemy
       doIdle: false,
     );
     speed = dieSpeed;
-    moveToPositionAlongThePath(
+    moveToPositionWithPathFinding(
       _startPositionAfterDie,
       ignoreCollisions: ignoreableCollisions,
       onFinish: _removeEyeAnimation,
@@ -113,6 +114,7 @@ class Ghost extends SimpleEnemy
       gameRef.player,
       ...gameRef.enemies(),
       ...gameRef.query<Dot>(),
+      ...gameRef.query<DotPower>(),
     ].map((e) => e!.children.query<ShapeHitbox>().first).toList();
   }
 
@@ -125,13 +127,14 @@ class Ghost extends SimpleEnemy
   }
 
   void _startInitialMovement({bool withDelay = true}) async {
+    const half = Game.tileSize / 2;
     switch (type) {
       case GhostType.red:
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 1));
         }
-        moveToPositionAlongThePath(
-          Vector2(Game.tileSize * 4, Game.tileSize * 3),
+        moveToPositionWithPathFinding(
+          Vector2((Game.tileSize * 4) + half, (Game.tileSize * 3) + half),
           ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
@@ -140,8 +143,8 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 6));
         }
-        moveToPositionAlongThePath(
-          Vector2(Game.tileSize * 14, Game.tileSize * 3),
+        moveToPositionWithPathFinding(
+          Vector2(Game.tileSize * 14 + half, Game.tileSize * 3 + half),
           ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
@@ -150,8 +153,8 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 11));
         }
-        moveToPositionAlongThePath(
-          Vector2(Game.tileSize * 4, Game.tileSize * 13),
+        moveToPositionWithPathFinding(
+          Vector2(Game.tileSize * 4 + half, Game.tileSize * 13 + half),
           ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
@@ -160,8 +163,8 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 16));
         }
-        moveToPositionAlongThePath(
-          Vector2(Game.tileSize * 14, Game.tileSize * 13),
+        moveToPositionWithPathFinding(
+          Vector2(Game.tileSize * 14 + half, Game.tileSize * 13 + half),
           ignoreCollisions: ignoreableCollisions,
         );
         enabledBeheavor = true;
@@ -170,8 +173,6 @@ class Ghost extends SimpleEnemy
   }
 
   void _removeEyeAnimation() {
-    state = GhostState.normal;
-    speed = normalSpeed;
     replaceAnimation(GhostSpriteSheet.getByType(type), doIdle: false);
     _startInitialMovement(withDelay: false);
     if (_gameState.pacManWithPower) {
@@ -179,11 +180,13 @@ class Ghost extends SimpleEnemy
     } else {
       Sounds.stopBackgroundSound();
     }
+    state = GhostState.normal;
+    speed = normalSpeed;
   }
 
   @override
   bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
-    if (other is Dot || other is Ghost) {
+    if (other is Dot || other is Ghost || state == GhostState.die) {
       return false;
     }
     return super.onBlockMovement(intersectionPoints, other);

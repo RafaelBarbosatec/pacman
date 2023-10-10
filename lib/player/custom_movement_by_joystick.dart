@@ -6,15 +6,16 @@ import 'package:pacman/main.dart';
 // import 'package:pacman/main.dart';
 
 mixin CustomMovementByJoystick on SimplePlayer {
+
   @override
-  void joystickChangeDirectional(JoystickDirectionalEvent event) {
+  void onJoystickChangeDirectional(JoystickDirectionalEvent event) {
     if (event.directional == JoystickMoveDirectional.IDLE) {
       return;
     }
     if (!_canMove(event.directional)) {
       return;
     }
-    super.joystickChangeDirectional(event);
+    super.onJoystickChangeDirectional(event);
   }
 
   // @override

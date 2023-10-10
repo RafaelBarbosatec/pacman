@@ -3,6 +3,7 @@ import 'dart:async' as async;
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:pacman/decoration/dot.dart';
+import 'package:pacman/decoration/dot_power.dart';
 import 'package:pacman/decoration/eat_score.dart';
 import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/player/custom_movement_by_joystick.dart';
@@ -34,7 +35,7 @@ class PacMan extends SimplePlayer
             runUp: PacManSpriteSheet.runUp,
             enabledFlipY: true,
           ),
-          speed: 140,
+          speed: 100,
         );
 
   @override
@@ -58,7 +59,7 @@ class PacMan extends SimplePlayer
   @override
   void onMount() {
     _gameState = BonfireInjector.instance.get();
-    gameRef.bonfireCamera.stop();
+    gameRef.camera.stop();
     super.onMount();
   }
 
@@ -98,10 +99,10 @@ class PacMan extends SimplePlayer
   }
 
   void eatDot() {
-    debounce(() {
-      Sounds.munch(first: firstSoundMunch);
-      firstSoundMunch = !firstSoundMunch;
-    });
+    // debounce(() {
+    //   Sounds.munch(first: firstSoundMunch);
+    //   firstSoundMunch = !firstSoundMunch;
+    // });
     _gameState.incrementScore();
   }
 
@@ -115,10 +116,12 @@ class PacMan extends SimplePlayer
   @override
   bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
     _handleContact(other);
-    if (other is Dot) {
+    if (other is Dot ||
+        other is DotPower ||
+        (other is Ghost && other.state != GhostState.normal)) {
       return false;
     }
-
+    stopMove();
     return super.onBlockMovement(intersectionPoints, other);
   }
 
@@ -133,10 +136,10 @@ class PacMan extends SimplePlayer
       eatDot();
       component.removeFromParent();
     }
-    if (component is Ghost && !isDead) {
+    if (component is Ghost && !isDead && component.state != GhostState.die) {
       if (component.state == GhostState.vulnerable) {
-        _incrementScore();
         component.bite();
+        _incrementScore();
       } else if (component.state == GhostState.normal && !isDead) {
         die();
       }
