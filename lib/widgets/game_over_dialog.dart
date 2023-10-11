@@ -1,4 +1,3 @@
-import 'package:bonfire/state_manager/bonfire_injector.dart';
 import 'package:flutter/material.dart';
 import 'package:pacman/util/game_state.dart';
 
@@ -17,7 +16,7 @@ class GameOverDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GameState gameState = BonfireInjector.instance.get();
+    final GameState gameState = GameState();
     TextStyle textStyle = const TextStyle(color: Colors.white);
     return Center(
       child: Material(

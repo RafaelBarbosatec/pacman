@@ -16,7 +16,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
 
   @override
   void initState() {
-    _state = BonfireInjector.instance.get();
+    _state = GameState();
     _state.addListener(_listener);
     super.initState();
   }

@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:pacman/util/sounds.dart';
 
 class GameState extends ChangeNotifier {
+  static final GameState _instance = GameState._internal();
+
+  factory GameState() {
+    return _instance;
+  }
+  GameState._internal();
+
   final Duration _timePower = const Duration(seconds: 6);
   List<ValueChanged<bool>> onChangePowerObserves = [];
   Future? _powerTimer;

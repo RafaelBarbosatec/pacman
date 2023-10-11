@@ -58,7 +58,7 @@ class PacMan extends SimplePlayer
 
   @override
   void onMount() {
-    _gameState = BonfireInjector.instance.get();
+    _gameState = GameState();
     gameRef.camera.stop();
     super.onMount();
   }

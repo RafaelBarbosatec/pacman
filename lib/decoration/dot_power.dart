@@ -26,7 +26,7 @@ class DotPower extends GameDecoration with Sensor {
 
   @override
   void onMount() {
-    _gameState = BonfireInjector.instance.get();
+    _gameState = GameState();
     super.onMount();
   }
 }

@@ -8,10 +8,9 @@ class EatScore extends GameDecoration with Movement, HandleForces {
   }) : super.withSprite(
           size: Vector2.all(Game.tileSize),
           sprite: UtilSpriteSheet.score100,
-
+            renderAboveComponents: true,
         ) {
     speed = 140;
-    aboveComponents = true;
   }
 
   @override

@@ -6,13 +6,11 @@ import 'package:pacman/decoration/sensor_gate.dart';
 import 'package:pacman/enemy/ghost.dart';
 import 'package:pacman/menu.dart';
 import 'package:pacman/player/pacman.dart';
-import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
 import 'package:pacman/widgets/interface_game.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  BonfireInjector.instance.putSingleton((i) => GameState());
   Sounds.initialize();
   runApp(const MyApp());
 }

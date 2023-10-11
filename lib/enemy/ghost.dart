@@ -120,7 +120,7 @@ class Ghost extends SimpleEnemy
 
   @override
   void onMount() {
-    _gameState = BonfireInjector.instance.get();
+    _gameState = GameState();
     _gameState.listenChangePower(_pacManChangePower);
     _startInitialMovement();
     super.onMount();
