@@ -33,6 +33,7 @@ dependencies:
   bonfire: ^2.12.6
   flame_audio: ^2.0.0
   mqtt_client: ^9.7.3
+  flutter_animate: ^4.3.0
 
 dev_dependencies:
   flutter_test:

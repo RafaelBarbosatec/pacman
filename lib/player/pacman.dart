@@ -11,6 +11,7 @@ import 'package:avnetman/util/game_state.dart';
 import 'package:avnetman/util/sounds.dart';
 import 'package:avnetman/widgets/congratulation_dialog.dart';
 import 'package:avnetman/widgets/game_over_dialog.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../main.dart';
 
@@ -24,6 +25,31 @@ class PacMan extends SimplePlayer
   bool youAreWinner = false;
   late GameState _gameState;
   async.Timer? _debounceSound;
+
+  final textBubble = const Text('Ready for business!',
+      style: TextStyle(
+          inherit: false,
+          fontSize: 20.0,
+          color: Colors.green,
+          shadows: [
+            Shadow(
+                // bottomLeft
+                offset: Offset(-1.5, -1.5),
+                color: Colors.black),
+            Shadow(
+                // bottomRight
+                offset: Offset(1.5, -1.5),
+                color: Colors.black),
+            Shadow(
+                // topRight
+                offset: Offset(1.5, 1.5),
+                color: Colors.black),
+            Shadow(
+                // topLeft
+                offset: Offset(-1.5, 1.5),
+                color: Colors.black),
+          ]),
+      textAlign: TextAlign.center);
 
   PacMan({required super.position})
       : super(
@@ -66,9 +92,28 @@ class PacMan extends SimplePlayer
   @override
   void onMount() {
     _gameState = BonfireInjector.instance.get();
+    _gameState.listenChangePower(_pacManChangePower);
     gameRef.camera.target = null;
     gameRef.camera.moveLeft(Game.tileSize);
     super.onMount();
+  }
+
+  void _pacManChangePower(bool value) {
+    if (value) {
+      FollowerWidget.show(
+        identify: 'textBubble',
+        context: context,
+        target: this,
+        child: textBubble
+            .animate()
+            .fadeIn(duration: Duration(seconds: 1)).then()
+            .shimmer(duration: Duration(seconds: 8)).shakeX(duration: Duration(seconds: 8), hz: 0.5, amount: 10.0).then()
+            .fadeOut(duration: Duration(seconds: 1)),
+        align: const Offset(-40.0, -40.0),
+      );
+    } else {
+      FollowerWidget.remove('textBubble');
+    }
   }
 
   @override
@@ -83,6 +128,7 @@ class PacMan extends SimplePlayer
   void die() {
     Sounds.stopBackgroundSound();
     Sounds.death();
+    FollowerWidget.remove('textBubble');
     _gameState.decrementLife();
     _gameState.decrementScore(500);
     animation?.playOnce(
