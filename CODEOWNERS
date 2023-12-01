@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: (C) 2023 Avnet Embedded GmbH
+# SPDX-License-Identifier: GPL-3.0-only
+* @avnet-embedded/team-distro-simpleswitch @avnet-embedded/team-avnetman @avnet-embedded/team-ew24-demos
+.github @avnet-embedded/team-ci
+.pre-commit-config.yaml @avnet-embedded/team-ci
+.secrets.baseline @avnet-embedded/team-ci
+CODEOWNERS @avnet-embedded/team-ci
+CONTRIBUTING.md @avnet-embedded/team-ci
