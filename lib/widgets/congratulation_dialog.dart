@@ -58,6 +58,8 @@ class CongratulationsDialog extends StatelessWidget {
         child: Focus(
             autofocus: true,
             child: Center(
+              heightFactor: 0.7,
+              widthFactor: 0.7,
               child: Material(
                 type: MaterialType.transparency,
                 child: Container(
@@ -91,7 +93,8 @@ class CongratulationsDialog extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Image.asset("assets/images/scanner_info.png",
-                       width: config.scanner_pic_w, height: config.scanner_pic_h, fit: BoxFit.fill),
+                          height: MediaQuery.of(context).size.height * 0.3,
+                          fit: BoxFit.fill),
                       const SizedBox(height: 20),
                       Text(
                         '...and we will sign you up automatically!',
@@ -99,72 +102,79 @@ class CongratulationsDialog extends StatelessWidget {
                             fontSize: 22, color: Colors.black),
                       ),
                       const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(20)),
-                          overlayColor: MaterialStateProperty.all(
-                            Colors.black.withOpacity(0.4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+                          ElevatedButton.icon(
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all(
+                                  const EdgeInsets.all(20)),
+                              overlayColor: MaterialStateProperty.all(
+                                Colors.black.withOpacity(0.4),
+                              ),
+                              side: MaterialStateProperty.all(
+                                const BorderSide(color: Colors.transparent),
+                              ),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                              shadowColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                            ),
+                            onPressed: () {
+                              gameState.reset();
+                              // TODO mqtt message
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/',
+                                (route) => false,
+                              );
+                            },
+                            icon: Image.asset('assets/images/button_blue.png',
+                                height: MediaQuery.of(context).size.height * 0.1,
+                                fit: BoxFit.fill),
+                            label: Text(
+                              'Yes!',
+                              style: textStyle.copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      MediaQuery.of(context).size.height * 0.05),
+                            ),
                           ),
-                          side: MaterialStateProperty.all(
-                            const BorderSide(color: Colors.black),
+                          const SizedBox(width: 50),
+                          ElevatedButton.icon(
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all(
+                                  const EdgeInsets.all(20)),
+                              overlayColor: MaterialStateProperty.all(
+                                Colors.black.withOpacity(0.2),
+                              ),
+                              side: MaterialStateProperty.all(
+                                const BorderSide(color: Colors.transparent),
+                              ),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                              shadowColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                            ),
+                            onPressed: () {
+                              gameState.reset();
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/',
+                                (route) => false,
+                              );
+                            },
+                            icon: Image.asset('assets/images/button_red.png',
+                                height: MediaQuery.of(context).size.height * 0.1,
+                                fit: BoxFit.fill),
+                            label: Text('Maybe later!',
+                                style: textStyle.copyWith(
+                                    color: Colors.red,
+                                    fontSize:
+                                        MediaQuery.of(context).size.height * 0.05)),
                           ),
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.transparent),
-                          shadowColor:
-                              MaterialStateProperty.all(Colors.transparent),
-                        ),
-                        onPressed: () {
-                          gameState.reset();
-                          // TODO mqtt message
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/',
-                            (route) => false,
-                          );
-                        },
-                        icon: Image.asset('assets/images/button_blue.png',
-                            height: config.button_pic_h,
-                            width: config.button_pic_w,
-                            fit: BoxFit.fill),
-                        label: Text(
-                          'Yes!',
-                          style: textStyle.copyWith(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(20)),
-                          overlayColor: MaterialStateProperty.all(
-                            Colors.black.withOpacity(0.2),
-                          ),
-                          side: MaterialStateProperty.all(
-                            const BorderSide(color: Colors.black),
-                          ),
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.transparent),
-                          shadowColor:
-                              MaterialStateProperty.all(Colors.transparent),
-                        ),
-                        onPressed: () {
-                          gameState.reset();
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/',
-                            (route) => false,
-                          );
-                        },
-                        icon: Image.asset('assets/images/button_red.png',
-                            height: config.button_pic_h,
-                            width: config.button_pic_w,
-                            fit: BoxFit.fill),
-                        label: Text(
-                          'Maybe later!',
-                          style: textStyle.copyWith(
-                            color: Colors.black,
-                          ),
-                        ),
+                        ],
                       )
                     ],
                   ),

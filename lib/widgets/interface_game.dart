@@ -32,7 +32,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
     const textStyle = TextStyle(
       color: Colors.black,
       fontWeight: FontWeight.bold,
-      fontSize: 18,
+      fontSize: 28,
     );
     return Material(
       type: MaterialType.transparency,
@@ -50,13 +50,13 @@ class _InterfaceGameState extends State<InterfaceGame> {
               _state.score.toString(),
               style: textStyle,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
             Wrap(
-              spacing: 10,
+              spacing: MediaQuery.of(context).size.width * 0.02,
               children: List.generate(_state.lifes, (i) {
                 return SizedBox(
-                  width: sizeIcon,
-                  height: sizeIcon,
+                  width: MediaQuery.of(context).size.height * 0.03,
+                  height: MediaQuery.of(context).size.height * 0.03,
                   child: UtilSpriteSheet.dotPower.asWidget(),
                 );
               }),

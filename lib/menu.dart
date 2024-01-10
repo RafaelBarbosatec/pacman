@@ -30,7 +30,7 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
       duration: const Duration(seconds: 5),
     );
     animation = Tween<Offset>(
-      begin: const Offset(-0.1, 0),
+      begin: const Offset(-1, 0),
       end: const Offset(1, 0),
     ).animate(_controller);
     _controller.addStatusListener(_statusListener);
@@ -48,7 +48,13 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     AppConfig config = AppConfig();
     config.read(context);
-    TextStyle textStyle = const TextStyle(color: Colors.black, fontSize: 20);
+    TextStyle textStyle = TextStyle(
+        color: Colors.black,
+        fontSize: MediaQuery.of(context).size.height * 0.02);
+
+    firstAnim = Transform.scale(scale: ((MediaQuery.of(context).size.height / 48.0) * 0.2), child: firstAnim);
+    secondAnim = Transform.scale(scale: ((MediaQuery.of(context).size.height / 48.0) * 0.2), child: secondAnim);
+
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.enter): EnterButtonIntent(),
@@ -62,81 +68,90 @@ class _MenuPageState extends State<MenuPage> with TickerProviderStateMixin {
         },
         child: Focus(
             autofocus: true,
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              body: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'AVNETman',
-                          style: textStyle.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 40,
-                          ),
+            child: Center(
+                heightFactor: 0.7,
+                widthFactor: 0.7,
+                child: Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Stack(
+                    children: [
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'AVNETman',
+                              style: textStyle.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.height * 0.1,
+                              ),
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.15),
+                            SlideTransition(
+                              position: animation,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    firstAnim,
+                                    SizedBox(width: MediaQuery.of(context).size.width * 0.2),
+                                    secondAnim,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.15),
+                            ElevatedButton.icon(
+                              onPressed: () =>
+                                  Navigator.of(context).pushNamed('/game'),
+                              style: ButtonStyle(
+                                padding: MaterialStateProperty.all(
+                                    const EdgeInsets.all(50)),
+                                overlayColor: MaterialStateProperty.all(
+                                  Colors.white.withOpacity(0.2),
+                                ),
+                                side: MaterialStateProperty.all(
+                                  const BorderSide(color: Colors.white),
+                                ),
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.transparent),
+                                shadowColor: MaterialStateProperty.all(
+                                    Colors.transparent),
+                              ),
+                              icon: Image.asset('assets/images/button_blue.png',
+                                  fit: BoxFit.fill,
+                                  width:
+                                      MediaQuery.of(context).size.height * 0.1),
+                              label: Text('Start Game',
+                                  style: textStyle.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        MediaQuery.of(context).size.height *
+                                            0.05,
+                                  )),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 40),
-                        SlideTransition(
-                          position: animation,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                firstAnim,
-                                const SizedBox(width: 20),
-                                secondAnim,
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        ElevatedButton.icon(
-                          onPressed: () =>
-                              Navigator.of(context).pushNamed('/game'),
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all(
-                                const EdgeInsets.all(20)),
-                            overlayColor: MaterialStateProperty.all(
-                              Colors.white.withOpacity(0.2),
-                            ),
-                            side: MaterialStateProperty.all(
-                              const BorderSide(color: Colors.white),
-                            ),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                            shadowColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                          ),
-                          icon: Image.asset('assets/images/button_blue.png',
-                              height: config.button_pic_h,
-                              width: config.button_pic_w,
-                              fit: BoxFit.fill),
-                          label: Text(
-                            'Start Game',
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(
+                            'Powered by Bonfire - Flutter',
                             style: textStyle,
                           ),
                         ),
-                      ],
-                    ),
+                      )
+                    ],
                   ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text(
-                        'Powered by Bonfire - Flutter',
-                        style: textStyle.copyWith(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            )),
+                ))),
       ),
     );
   }

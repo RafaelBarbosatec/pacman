@@ -26,10 +26,10 @@ class PacMan extends SimplePlayer
   late GameState _gameState;
   async.Timer? _debounceSound;
 
-  final textBubble = const Text('Ready for business!',
+final textBubble = const Text('Ready for business!',
       style: TextStyle(
           inherit: false,
-          fontSize: 20.0,
+          fontSize: 60.0,
           color: Colors.green,
           shadows: [
             Shadow(
@@ -93,8 +93,7 @@ class PacMan extends SimplePlayer
   void onMount() {
     _gameState = BonfireInjector.instance.get();
     _gameState.listenChangePower(_pacManChangePower);
-    gameRef.camera.target = null;
-    gameRef.camera.moveLeft(Game.tileSize);
+    gameRef.camera.moveToTargetAnimated(gameRef.camera.target!, zoom: gameRef.camera.zoom - 0.2);
     super.onMount();
   }
 
@@ -126,6 +125,7 @@ class PacMan extends SimplePlayer
 
   @override
   void die() {
+    if (youAreWinner) return;
     Sounds.stopBackgroundSound();
     Sounds.death();
     FollowerWidget.remove('textBubble');
@@ -136,6 +136,7 @@ class PacMan extends SimplePlayer
       onFinish: () {
         if (_gameState.lifes == 0) {
           async.Future.delayed(Duration.zero, () {
+            gameRef.camera.moveToTargetAnimated(gameRef.camera.target!, zoom: 0.00001);
             GameOverDialog.show(context);
             removeFromParent();
           });
@@ -152,9 +153,11 @@ class PacMan extends SimplePlayer
 
   void _checkIfWinner(double dt) {
     if (checkInterval('winner', 1000, dt) && !youAreWinner) {
-      bool winner = gameRef.componentsByType<Dot>().isEmpty;
+      bool winner =  gameRef.componentsByType<Dot>().isEmpty;
       if (winner) {
+        gameRef.camera.moveToTargetAnimated(gameRef.camera.target!, zoom: 0.00001);
         youAreWinner = true;
+        FollowerWidget.remove('textBubble');
         CongratulationsDialog.show(context);
       }
     }

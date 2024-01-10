@@ -25,9 +25,9 @@ void main() {
   runApp(const MyApp());
 }
 
-void startServices(){
+void startServices() {
   // mqtt doesn't work in web profile
-  if (! kIsWeb) {
+  if (!kIsWeb) {
     mqttService.start();
   }
 }
@@ -55,10 +55,6 @@ class AppConfig {
   double height = -1;
   double width = -1;
   double zoom = 1.0;
-  double button_pic_h = 30.0;
-  double button_pic_w = 30.0;
-  double scanner_pic_h = 194;
-  double scanner_pic_w = 259;
 
   void read(BuildContext context) {
     Size sizeScreen = MediaQuery.of(context).size;
@@ -70,8 +66,9 @@ class AppConfig {
 
     List<String> items = [
       "/apps/pacman/config.json",
-      "/usr/share/pacman/config.json", 
-      "config.json"];
+      "/usr/share/pacman/config.json",
+      "config.json"
+    ];
     for (var item in items) {
       try {
         final File file = File(item);
@@ -81,10 +78,6 @@ class AppConfig {
         height = config["height"] ?? sizeScreen.height;
         width = config["width"] ?? sizeScreen.width;
         zoom = config["zoom"] ?? width / heightMap;
-        button_pic_h = config["button_pic_h"] ?? button_pic_h;
-        button_pic_w = config["button_pic_w"] ?? button_pic_w;
-        scanner_pic_h = config["scanner_pic_h"] ?? scanner_pic_h;
-        scanner_pic_w = config["scanner_pic_w"] ?? scanner_pic_w;
         return;
       } catch (e) {
         continue;
@@ -102,6 +95,42 @@ class Game extends StatelessWidget {
     AppConfig config = AppConfig();
     config.read(context);
     double zoom = config.zoom;
+    PacMan player = PacMan(position: PacMan.initialPosition);
+    WorldMapByTiled map = WorldMapByTiled(
+      'map.tmj',
+      objectsBuilder: {
+        'sensor_left': (properties) => SensorGate(
+              position: properties.position,
+              direction: DiractionGate.left,
+            ),
+        'sensor_right': (properties) => SensorGate(
+              position: properties.position,
+              direction: DiractionGate.right,
+            ),
+        'dot': (properties) => Dot(
+              position: properties.position,
+            ),
+        'dot_power': (properties) => DotPower(
+              position: properties.position,
+            ),
+        'ghost_red': (properties) => Ghost(
+              position: properties.position,
+              type: GhostType.red,
+            ),
+        'ghost_pink': (properties) => Ghost(
+              position: properties.position,
+              type: GhostType.pink,
+            ),
+        'ghost_orange': (properties) => Ghost(
+              position: properties.position,
+              type: GhostType.orange,
+            ),
+        'ghost_blue': (properties) => Ghost(
+              position: properties.position,
+              type: GhostType.blue,
+            ),
+      },
+    );
     return Container(
       color: Colors.white,
       child: Center(
@@ -110,41 +139,7 @@ class Game extends StatelessWidget {
           height: config.height,
           child: BonfireWidget(
             backgroundColor: Colors.white,
-            map: WorldMapByTiled(
-              'map.tmj',
-              objectsBuilder: {
-                'sensor_left': (properties) => SensorGate(
-                      position: properties.position,
-                      direction: DiractionGate.left,
-                    ),
-                'sensor_right': (properties) => SensorGate(
-                      position: properties.position,
-                      direction: DiractionGate.right,
-                    ),
-                'dot': (properties) => Dot(
-                      position: properties.position,
-                    ),
-                'dot_power': (properties) => DotPower(
-                      position: properties.position,
-                    ),
-                'ghost_red': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.red,
-                    ),
-                'ghost_pink': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.pink,
-                    ),
-                'ghost_orange': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.orange,
-                    ),
-                'ghost_blue': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.blue,
-                    ),
-              },
-            ),
+            map: map,
             joystick: Joystick(
               keyboardConfig: KeyboardConfig(),
             ),
@@ -153,11 +148,11 @@ class Game extends StatelessWidget {
             },
             initialActiveOverlays: const ['score'],
             cameraConfig: CameraConfig(
+              smoothCameraEnabled: true,
               zoom: zoom,
+              target: map,
             ),
-            player: PacMan(
-              position: PacMan.initialPosition,
-            ),
+            player: player,
           ),
         ),
       ),
