@@ -22,7 +22,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,74 +37,99 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Game extends StatelessWidget {
+class Game extends StatefulWidget {
   static const double heightMap = 1004.0;
   static const double tileSize = 48.0;
   const Game({Key? key}) : super(key: key);
+
+  @override
+  State<Game> createState() => _GameState();
+}
+
+class _GameState extends State<Game> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size sizeScreen = MediaQuery.of(context).size;
     double size = min(sizeScreen.width, sizeScreen.height);
 
-    return ListenableProvider(
-      create: (context) => GameState(),
-      child: Container(
-        color: Colors.black,
-        child: Center(
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: BonfireWidget(
-              map: WorldMapByTiled(
-                WorldMapReader.fromAsset('map.tmj'),
-                objectsBuilder: {
-                  'sensor_left': (properties) => SensorGate(
-                        position: properties.position,
-                        direction: DiractionGate.left,
-                      ),
-                  'sensor_right': (properties) => SensorGate(
-                        position: properties.position,
-                        direction: DiractionGate.right,
-                      ),
-                  'dot': (properties) => Dot(
-                        position: properties.position,
-                      ),
-                  'dot_power': (properties) => DotPower(
-                        position: properties.position,
-                      ),
-                  'ghost_red': (properties) => Ghost(
-                        position: properties.position,
-                        type: GhostType.red,
-                      ),
-                  'ghost_pink': (properties) => Ghost(
-                        position: properties.position,
-                        type: GhostType.pink,
-                      ),
-                  'ghost_orange': (properties) => Ghost(
-                        position: properties.position,
-                        type: GhostType.orange,
-                      ),
-                  'ghost_blue': (properties) => Ghost(
-                        position: properties.position,
-                        type: GhostType.blue,
-                      ),
+    return Container(
+      color: Colors.black,
+      child: FadeTransition(
+        opacity: _controller,
+        child: ListenableProvider(
+          create: (context) => GameState(),
+          child: Center(
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: BonfireWidget(
+                map: WorldMapByTiled(
+                  WorldMapReader.fromAsset('map.tmj'),
+                  objectsBuilder: {
+                    'sensor_left': (properties) => SensorGate(
+                          position: properties.position,
+                          direction: DiractionGate.left,
+                        ),
+                    'sensor_right': (properties) => SensorGate(
+                          position: properties.position,
+                          direction: DiractionGate.right,
+                        ),
+                    'dot': (properties) => Dot(
+                          position: properties.position,
+                        ),
+                    'dot_power': (properties) => DotPower(
+                          position: properties.position,
+                        ),
+                    'ghost_red': (properties) => Ghost(
+                          position: properties.position,
+                          type: GhostType.red,
+                        ),
+                    'ghost_pink': (properties) => Ghost(
+                          position: properties.position,
+                          type: GhostType.pink,
+                        ),
+                    'ghost_orange': (properties) => Ghost(
+                          position: properties.position,
+                          type: GhostType.orange,
+                        ),
+                    'ghost_blue': (properties) => Ghost(
+                          position: properties.position,
+                          type: GhostType.blue,
+                        ),
+                  },
+                ),
+                playerControllers: [
+                  Keyboard(),
+                ],
+                overlayBuilderMap: {
+                  'score': ((context, game) => const InterfaceGame()),
                 },
-              ),
-              playerControllers: [
-                Keyboard(),
-              ],
-              overlayBuilderMap: {
-                'score': ((context, game) => const InterfaceGame()),
-              },
-              initialActiveOverlays: const ['score'],
-              cameraConfig: CameraConfig(
-                initialMapZoomFit: InitialMapZoomFitEnum.fit,
-                startFollowPlayer: false,
-                moveOnlyMapArea: true,
-              ),
-              player: PacMan(
-                position: PacMan.initialPosition,
+                initialActiveOverlays: const ['score'],
+                cameraConfig: CameraConfig(
+                  initialMapZoomFit: InitialMapZoomFitEnum.fit,
+                  startFollowPlayer: false,
+                  moveOnlyMapArea: true,
+                ),
+                player: PacMan(
+                  position: PacMan.initialPosition,
+                ),
+                onReady: (_) {
+                  Future.delayed(
+                    const Duration(milliseconds: 300),
+                    () => _controller.forward(),
+                  );
+                },
               ),
             ),
           ),
