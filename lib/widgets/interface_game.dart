@@ -2,6 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/util_spritesheet.dart';
+import 'package:provider/provider.dart';
 
 class InterfaceGame extends StatefulWidget {
   const InterfaceGame({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _InterfaceGameState extends State<InterfaceGame> {
 
   @override
   void initState() {
-    _state = BonfireInjector.instance.get();
+    _state = context.read();
     _state.addListener(_listener);
     super.initState();
   }

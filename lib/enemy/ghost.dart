@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:pacman/enemy/ghost_spritesheet.dart';
@@ -5,13 +7,13 @@ import 'package:pacman/main.dart';
 import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
+import 'package:provider/provider.dart';
 
 enum GhostType { red, blue, pink, orange }
 
 enum GhostState { normal, vulnerable, die }
 
-class Ghost extends SimpleEnemy
-    with ObjectCollision, AutomaticRandomMovement, MoveToPositionAlongThePath {
+class Ghost extends SimpleEnemy with BlockMovementCollision, PathFinding {
   static const normalSpeed = 140.0;
   static const vulnerableSpeed = 90.0;
   static const dieSpeed = 240.0;
@@ -32,61 +34,94 @@ class Ghost extends SimpleEnemy
           animation: GhostSpriteSheet.getByType(type),
           speed: normalSpeed,
         ) {
-    setupCollision(
-      CollisionConfig(
-        collisions: [
-          CollisionArea.rectangle(
-            size: size - Vector2.all(4),
-            align: Vector2.all(2),
-          ),
-        ],
-      ),
-    );
-
-    setupMoveToPositionAlongThePath(
+    setupPathFinding(
       pathLineColor: Colors.transparent,
+      factorInflateFindArea: 5,
     );
+    setupVision(checkWithRaycast: true);
   }
 
   @override
   void update(double dt) {
-    if (enabledBeheavor && !isMovingAlongThePath) {
+    if (enabledBeheavor) {
       seePlayer(
         observed: (player) {
-          bool move = false;
           if (state == GhostState.vulnerable) {
-            move = positionsItselfAndKeepDistance(
-              player,
-              positioned: (_) {},
-              minDistanceFromPlayer: Game.tileSize * 3,
-            );
+            _toScape(dt, player);
           } else {
-            move = followComponent(
-              player,
-              dt,
-              closeComponent: (_) {},
-              margin: -10,
-            );
-          }
-          if (!move) {
-            _runRandom(dt);
+            _pursue(dt, player);
           }
         },
         radiusVision: Game.tileSize * 2,
-        notObserved: () => _runRandom(dt),
+        notObserved: () {
+          if (!isMovingAlongThePath) {
+            _runRandom(dt, lastDirection);
+          }
+        },
       );
     }
     super.update(dt);
   }
 
-  void _runRandom(double dt) {
-    runRandomMovement(
-      dt,
-      speed: speed,
-      maxDistance: (Game.tileSize * 4).toInt(),
-      minDistance: (Game.tileSize * 4).toInt(),
-      timeKeepStopped: 0,
-    );
+  void _pursue(double dt, Player player) {
+    Direction newDirection = _getPlayerDirection(player);
+    _moveDirection(newDirection);
+  }
+
+  void _toScape(double dt, Player player) {
+    Direction newDirection = _getPlayerDirection(player);
+
+    if (newDirection.isHorizontal || newDirection.isVertical) {
+      if (newDirection == Direction.left) {
+        newDirection = Direction.right;
+      }
+      if (newDirection == Direction.right) {
+        newDirection = Direction.left;
+      }
+      if (newDirection == Direction.up) {
+        newDirection = Direction.down;
+      }
+      if (newDirection == Direction.down) {
+        newDirection = Direction.up;
+      }
+      _moveDirection(newDirection);
+    }
+  }
+
+  void _runRandom(double dt, Direction direction) {
+    final canVerticalDirections = [
+      direction,
+      Direction.up,
+      Direction.down,
+    ];
+    final canHorizontalDirections = [
+      direction,
+      Direction.left,
+      Direction.right
+    ];
+    Direction newDirection = direction;
+    switch (direction) {
+      case Direction.left:
+      case Direction.right:
+        newDirection = canVerticalDirections[Random().nextInt(3)];
+
+        break;
+      case Direction.up:
+      case Direction.down:
+        newDirection = canHorizontalDirections[Random().nextInt(3)];
+        break;
+      default:
+    }
+
+    _moveDirection(newDirection);
+  }
+
+  void _moveDirection(Direction direction) {
+    final ghosts = gameRef.query<Ghost>().map((e) => e.shapeHitboxes.first);
+
+    if (canMove(direction, ignoreHitboxes: ghosts)) {
+      moveFromDirection(direction);
+    }
   }
 
   void bite() {
@@ -101,7 +136,7 @@ class Ghost extends SimpleEnemy
     );
 
     speed = dieSpeed;
-    moveToPositionAlongThePath(
+    moveToPositionWithPathFinding(
       _startPositionAfterDie,
       ignoreCollisions: ignoreableCollisions,
       onFinish: _removeEyeAnimation,
@@ -110,16 +145,16 @@ class Ghost extends SimpleEnemy
     Sounds.playRetreatingBackgroundSound();
   }
 
-  List<dynamic> get ignoreableCollisions {
+  List<GameComponent> get ignoreableCollisions {
     return [
-      gameRef.player,
+      if (gameRef.player != null) gameRef.player!,
       ...gameRef.enemies(),
     ];
   }
 
   @override
   void onMount() {
-    _gameState = BonfireInjector.instance.get();
+    _gameState = context.read();
     _gameState.listenChangePower(_pacManChangePower);
     _startInitialMovement();
     super.onMount();
@@ -131,7 +166,7 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 1));
         }
-        moveToPositionAlongThePath(
+        moveToPositionWithPathFinding(
           Vector2(Game.tileSize * 4, Game.tileSize * 3),
           ignoreCollisions: ignoreableCollisions,
         );
@@ -141,7 +176,7 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 6));
         }
-        moveToPositionAlongThePath(
+        moveToPositionWithPathFinding(
           Vector2(Game.tileSize * 14, Game.tileSize * 3),
           ignoreCollisions: ignoreableCollisions,
         );
@@ -151,7 +186,7 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 11));
         }
-        moveToPositionAlongThePath(
+        moveToPositionWithPathFinding(
           Vector2(Game.tileSize * 4, Game.tileSize * 13),
           ignoreCollisions: ignoreableCollisions,
         );
@@ -161,7 +196,7 @@ class Ghost extends SimpleEnemy
         if (withDelay) {
           await Future.delayed(const Duration(seconds: 16));
         }
-        moveToPositionAlongThePath(
+        moveToPositionWithPathFinding(
           Vector2(Game.tileSize * 14, Game.tileSize * 13),
           ignoreCollisions: ignoreableCollisions,
         );
@@ -183,28 +218,60 @@ class Ghost extends SimpleEnemy
   }
 
   @override
-  bool onCollision(GameComponent component, bool active) {
-    if (component is Ghost || component is PacMan) {
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
+    if (other is Ghost || other is PacMan) {
       return false;
     }
-    return super.onCollision(component, active);
+    return super.onBlockMovement(intersectionPoints, other);
   }
 
-  void _pacManChangePower(bool value) {
+  Future<void> _pacManChangePower(bool value) async {
     if (value) {
       state = GhostState.vulnerable;
       speed = vulnerableSpeed;
       final animation = GhostSpriteSheet.runPower;
-      replaceAnimation(
+      await replaceAnimation(
         SimpleDirectionAnimation(
           idleRight: animation,
           runRight: animation,
         ),
       );
+      idle();
     } else if (state != GhostState.die) {
       state = GhostState.normal;
       speed = normalSpeed;
-      replaceAnimation(GhostSpriteSheet.getByType(type));
+      replaceAnimation(
+        GhostSpriteSheet.getByType(type),
+      );
+    }
+  }
+
+  @override
+  Future<void> onLoad() {
+    add(
+      RectangleHitbox(
+        size: size - Vector2.all(4),
+        position: Vector2.all(2),
+      ),
+    );
+    return super.onLoad();
+  }
+
+  Direction _getPlayerDirection(Player player) {
+    final diffX = center.x - player.center.x;
+    final diffY = center.y - player.center.y;
+    if (diffX.abs() > diffY.abs()) {
+      if (center.x > player.center.x) {
+        return Direction.left;
+      } else {
+        return Direction.right;
+      }
+    } else {
+      if (center.y > player.center.y) {
+        return Direction.up;
+      } else {
+        return Direction.down;
+      }
     }
   }
 }

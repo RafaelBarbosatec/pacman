@@ -11,11 +11,12 @@ import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
 import 'package:pacman/widgets/congratulation_dialog.dart';
 import 'package:pacman/widgets/game_over_dialog.dart';
+import 'package:provider/provider.dart';
 
 import '../main.dart';
 
 class PacMan extends SimplePlayer
-    with ObjectCollision, Sensor, CustomMovementByJoystick {
+    with BlockMovementCollision, CustomMovementByJoystick {
   static final Vector2 initialPosition = Vector2(
     9 * Game.tileSize,
     15 * Game.tileSize,
@@ -28,59 +29,53 @@ class PacMan extends SimplePlayer
   PacMan({required super.position})
       : super(
           size: Vector2.all(Game.tileSize),
+          speed: 150,
           animation: SimpleDirectionAnimation(
             idleRight: PacManSpriteSheet.idle,
             runRight: PacManSpriteSheet.runRight,
             runUp: PacManSpriteSheet.runUp,
             enabledFlipY: true,
           ),
-        ) {
-    setupCollision(
-      CollisionConfig(
-        collisions: [
-          CollisionArea.rectangle(
-            size: size - Vector2.all(2),
-            align: Vector2.all(1),
-          ),
-        ],
-      ),
-    );
-
-    setupSensorArea(
-      areaSensor: [
-        CollisionArea.rectangle(
-          size: size - Vector2.all(24),
-          align: Vector2.all(12),
-        ),
-      ],
-      intervalCheck: 150,
-    );
-  }
+        );
 
   @override
   void update(double dt) {
     _checkIfWinner(dt);
+    _checkContactWithDot(dt);
     super.update(dt);
   }
 
   @override
   void onMount() {
-    _gameState = BonfireInjector.instance.get();
-    gameRef.camera.target = null;
-    gameRef.camera.moveLeft(Game.tileSize);
+    _gameState = context.read();
     super.onMount();
   }
 
   @override
-  bool onCollision(GameComponent component, bool active) {
-    if (component is Ghost) {
+  bool onBlockMovement(Set<Vector2> intersectionPoints, GameComponent other) {
+    if (other is Ghost) {
+      if (other.state == GhostState.vulnerable) {
+        _incrementScore();
+        other.bite();
+      } else if (other.state == GhostState.normal) {
+        if (!isDead) {
+          idle();
+          removeLife(100);
+        }
+      }
       return false;
     }
-    return super.onCollision(component, active);
+    return super.onBlockMovement(intersectionPoints, other);
   }
 
   @override
-  void die() {
+  void onBlockedMovement(PositionComponent other, CollisionData collisionData) {
+    super.onBlockedMovement(other, collisionData);
+    idle();
+  }
+
+  @override
+  void onDie() {
     Sounds.stopBackgroundSound();
     Sounds.death();
     _gameState.decrementLife();
@@ -95,17 +90,17 @@ class PacMan extends SimplePlayer
         } else {
           position = initialPosition;
           idle();
-          revive();
+          updateLife(maxLife);
         }
       },
       runToTheEnd: true,
     );
-    super.die();
+    super.onDie();
   }
 
   void _checkIfWinner(double dt) {
     if (checkInterval('winner', 1000, dt) && !youAreWinner) {
-      bool winner = gameRef.componentsByType<Dot>().isEmpty;
+      bool winner = gameRef.query<Dot>().isEmpty;
       if (winner) {
         youAreWinner = true;
         CongratulationsDialog.show(context);
@@ -128,28 +123,36 @@ class PacMan extends SimplePlayer
     _debounceSound = async.Timer(const Duration(milliseconds: 100), call);
   }
 
-  @override
-  void onContact(GameComponent component) {
-    if (component is Dot && !component.eated) {
-      component.eated = true;
-      eatDot();
-      component.removeFromParent();
-    }
-    if (component is Ghost) {
-      if (component.state == GhostState.vulnerable) {
-        _incrementScore();
-        component.bite();
-      } else if (component.state == GhostState.normal) {
-        if (!isDead) {
-          idle();
-          die();
-        }
-      }
-    }
-  }
-
   void _incrementScore() {
     gameRef.add(EatScore(position: position));
     _gameState.incrementScore(value: 200);
+  }
+
+  @override
+  async.Future<void> onLoad() {
+    add(
+      RectangleHitbox(
+        size: size / 1.5,
+        position: size / 6,
+      ),
+    );
+    return super.onLoad();
+  }
+
+  void _checkContactWithDot(double dt) {
+    if (checkInterval('check_dot', 250, dt)) {
+      final dots = gameRef.query<Dot>().where((e) {
+        return e.rectCollision.overlaps(rectCollision);
+      });
+      if (dots.isNotEmpty) {
+        for (var other in dots) {
+          if (!other.eated) {
+            other.eated = true;
+            eatDot();
+            other.removeFromParent();
+          }
+        }
+      }
+    }
   }
 }

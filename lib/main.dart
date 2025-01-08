@@ -11,10 +11,10 @@ import 'package:pacman/player/pacman.dart';
 import 'package:pacman/util/game_state.dart';
 import 'package:pacman/util/sounds.dart';
 import 'package:pacman/widgets/interface_game.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  BonfireInjector.instance.put((i) => GameState());
   Sounds.initialize();
   runApp(const MyApp());
 }
@@ -47,61 +47,66 @@ class Game extends StatelessWidget {
   Widget build(BuildContext context) {
     Size sizeScreen = MediaQuery.of(context).size;
     double size = min(sizeScreen.width, sizeScreen.height);
-    double zoom = size / heightMap;
-    return Container(
-      color: Colors.black,
-      child: Center(
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: BonfireWidget(
-            map: WorldMapByTiled(
-              'map.tmj',
-              objectsBuilder: {
-                'sensor_left': (properties) => SensorGate(
-                      position: properties.position,
-                      direction: DiractionGate.left,
-                    ),
-                'sensor_right': (properties) => SensorGate(
-                      position: properties.position,
-                      direction: DiractionGate.right,
-                    ),
-                'dot': (properties) => Dot(
-                      position: properties.position,
-                    ),
-                'dot_power': (properties) => DotPower(
-                      position: properties.position,
-                    ),
-                'ghost_red': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.red,
-                    ),
-                'ghost_pink': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.pink,
-                    ),
-                'ghost_orange': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.orange,
-                    ),
-                'ghost_blue': (properties) => Ghost(
-                      position: properties.position,
-                      type: GhostType.blue,
-                    ),
+
+    return ListenableProvider(
+      create: (context) => GameState(),
+      child: Container(
+        color: Colors.black,
+        child: Center(
+          child: SizedBox(
+            width: size,
+            height: size,
+            child: BonfireWidget(
+              map: WorldMapByTiled(
+                WorldMapReader.fromAsset('map.tmj'),
+                objectsBuilder: {
+                  'sensor_left': (properties) => SensorGate(
+                        position: properties.position,
+                        direction: DiractionGate.left,
+                      ),
+                  'sensor_right': (properties) => SensorGate(
+                        position: properties.position,
+                        direction: DiractionGate.right,
+                      ),
+                  'dot': (properties) => Dot(
+                        position: properties.position,
+                      ),
+                  'dot_power': (properties) => DotPower(
+                        position: properties.position,
+                      ),
+                  'ghost_red': (properties) => Ghost(
+                        position: properties.position,
+                        type: GhostType.red,
+                      ),
+                  'ghost_pink': (properties) => Ghost(
+                        position: properties.position,
+                        type: GhostType.pink,
+                      ),
+                  'ghost_orange': (properties) => Ghost(
+                        position: properties.position,
+                        type: GhostType.orange,
+                      ),
+                  'ghost_blue': (properties) => Ghost(
+                        position: properties.position,
+                        type: GhostType.blue,
+                      ),
+                },
+              ),
+              playerControllers: [
+                Keyboard(),
+              ],
+              overlayBuilderMap: {
+                'score': ((context, game) => const InterfaceGame()),
               },
-            ),
-            joystick: Joystick(
-              keyboardConfig: KeyboardConfig(),
-            ),
-            overlayBuilderMap: {
-              'score': ((context, game) => const InterfaceGame()),
-            },
-            initialActiveOverlays: const ['score'],
-            cameraConfig: CameraConfig(
-              zoom: zoom,
-            ),
-            player: PacMan(
-              position: PacMan.initialPosition,
+              initialActiveOverlays: const ['score'],
+              cameraConfig: CameraConfig(
+                initialMapZoomFit: InitialMapZoomFitEnum.fit,
+                startFollowPlayer: false,
+                moveOnlyMapArea: true,
+              ),
+              player: PacMan(
+                position: PacMan.initialPosition,
+              ),
             ),
           ),
         ),

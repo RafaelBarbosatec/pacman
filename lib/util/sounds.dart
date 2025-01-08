@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:flame_audio/flame_audio.dart';
 
 class Sounds {
@@ -16,15 +18,19 @@ class Sounds {
   static String _currentBackground = '';
 
   static void munch({bool first = true}) {
-    FlameAudio.play(first ? 'munch_1.wav' : 'munch_2.wav');
+    // FlameAudio.play(first ? 'munch_1.wav' : 'munch_2.wav');
   }
 
   static void eatGhost() {
-    FlameAudio.play('eat_ghost.wav');
+    try {
+      FlameAudio.play('eat_ghost.wav');
+    } catch (e) {}
   }
 
   static void death() {
-    FlameAudio.play('death.wav');
+    try {
+      FlameAudio.play('death.wav');
+    } catch (e) {}
   }
 
   static stopBackgroundSound() {

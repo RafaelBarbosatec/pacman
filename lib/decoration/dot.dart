@@ -12,5 +12,4 @@ class Dot extends GameDecoration {
 
   @override
   int get priority => LayerPriority.MAP + 1;
-
 }
