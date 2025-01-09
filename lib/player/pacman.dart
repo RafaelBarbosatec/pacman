@@ -84,7 +84,10 @@ class PacMan extends SimplePlayer
       onFinish: () {
         if (_gameState.lifes == 0) {
           async.Future.delayed(Duration.zero, () {
-            GameOverDialog.show(context);
+            if (context.mounted) {
+              GameOverDialog.show(context);
+            }
+
             removeFromParent();
           });
         } else {

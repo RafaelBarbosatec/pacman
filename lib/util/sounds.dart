@@ -17,8 +17,14 @@ class Sounds {
 
   static String _currentBackground = '';
 
-  static void munch({bool first = true}) {
-    // FlameAudio.play(first ? 'munch_1.wav' : 'munch_2.wav');
+  static bool _plaingMunch = false;
+  static Future<void> munch({bool first = true}) async {
+    if (_plaingMunch) {
+      return;
+    }
+    _plaingMunch = true;
+    await FlameAudio.play(first ? 'munch_1.wav' : 'munch_2.wav');
+    _plaingMunch = false;
   }
 
   static void eatGhost() {
